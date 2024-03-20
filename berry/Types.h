@@ -1,6 +1,8 @@
 #pragma once
 
 #include <type_traits>
+#include <array>
+#include <tuple>
 
 namespace BRY {
 
@@ -18,11 +20,14 @@ typedef uint64_t bry_deg_t;
 
 /* Helpful functions*/
 
-template <typename T, typename ... ARGS_T>
+template <typename T, typename... ARGS_T>
 constexpr bool is_uniform_type();
 
-template <typename T, typename ... ARGS_T>
+template <typename T, typename... ARGS_T>
 constexpr bool is_uniform_convertible_type();
+
+template <typename T, typename... ARGS_T>
+std::array<T, sizeof...(ARGS_T)> makeArray(ARGS_T&&... args);
 
 }
 

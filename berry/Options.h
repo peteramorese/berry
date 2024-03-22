@@ -6,6 +6,14 @@
 /* Enable inline */
 #define BRY_ENABLE_INL
 
+/* Enable asserts */
+#define BRY_ASSERTS
+
+/* Enable debug tools */
+#define BRY_DEBUG_TOOLS
+
+/* Enable logging in color */
+#define BRY_LOG_COLOR
 
 
 

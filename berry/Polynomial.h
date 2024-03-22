@@ -7,6 +7,7 @@
 #include <vector>
 #include <array>
 #include <memory>
+#include <iostream>
 
 
 namespace BRY {
@@ -22,14 +23,43 @@ class Polynomial {
         template <typename ... DEGS>
         BRY_INL const bry_float_t& coeff(DEGS ... exponents) const;
 
-    private:
+        // Operators
+
+        /* TODO */
+        template <typename ... FLTS>
+        bry_float_t operator()(FLTS ... x) const;
+
+        std::ostream& print(std::ostream& os) const;
+
+    //private:
         BRY_INL std::size_t wrap(const std::array<bry_deg_t, DIM>& exponents) const;
         BRY_INL std::array<bry_deg_t, DIM> unwrap(std::size_t idx) const;
         
     private:
         std::size_t m_degree;
         std::vector<bry_float_t> m_container;
+
+    private:
+        //friend Polynomial operator+(const Polynomial& p_1, const Polynomial& p_2);
+        //friend Polynomial operator-(const Polynomial& p_1, const Polynomial& p_2);
+        //friend Polynomial operator*(const Polynomial& p_1, const Polynomial& p_2);
+        //friend Polynomial operator^(const Polynomial& p_1, const Polynomial& p_2);
 };
+
+template <std::size_t DIM>
+Polynomial<DIM> operator+(const Polynomial<DIM>& p_1, const Polynomial<DIM>& p_2);
+
+template <std::size_t DIM>
+Polynomial<DIM> operator-(const Polynomial<DIM>& p_1, const Polynomial<DIM>& p_2);
+
+template <std::size_t DIM>
+Polynomial<DIM> operator*(const Polynomial<DIM>& p_1, const Polynomial<DIM>& p_2);
+
+template <std::size_t DIM>
+Polynomial<DIM> operator^(const Polynomial<DIM>& p_1, bry_deg_t deg);
+
+template <std::size_t DIM>
+std::ostream& operator<<(std::ostream& os, const Polynomial<DIM>& p) {return p.print(os);}
 
 }
 

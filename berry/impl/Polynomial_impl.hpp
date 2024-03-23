@@ -127,7 +127,26 @@ BRY::Polynomial<DIM> operator+(const BRY::Polynomial<DIM>& p_1, const BRY::Polyn
 
 template <std::size_t DIM>
 BRY::Polynomial<DIM> operator-(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2) {
+    const BRY::Polynomial<DIM>* p_big;
+    const BRY::Polynomial<DIM>* p_small;
+    if ((p_1.m_degree > p_2.m_degree)) {
+        p_big = &p_1;
+        p_small = &p_2;
+    } else {
+        p_big = &p_2;
+        p_small = &p_1;
+    }
 
+    BRY::Polynomial<DIM> p_new = *p_big;
+
+    std::size_t deg_diff = p_big->m_degree - p_small->m_degree;
+    std::size_t i_big = 0;
+    for (std::size_t i_small = 0; i_small < p_small->m_container.size(); ++i_small) {
+        p_new.m_container[i_big] -= p_small->m_container[i_small];
+        i_big += ((i_small + 1) % p_small->m_degree) ? 1 : 1 + deg_diff;
+    }
+    
+    return p_new;
 }
 
 template <std::size_t DIM>

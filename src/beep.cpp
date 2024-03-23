@@ -31,4 +31,5 @@ int main() {
     DEBUG("p2: " << p2);
     auto p_sum = p1 + p2;
     DEBUG("p1 + p2: " << p_sum);
+    DEBUG("p1 - p2: " << p1 - p2);
 }

@@ -11,6 +11,11 @@ BRY::Polynomial<DIM>::Polynomial(bry_deg_t degree)
 { }
 
 template <std::size_t DIM>
+std::size_t BRY::Polynomial<DIM>::degree() const {
+    return m_degree;
+}
+
+template <std::size_t DIM>
 template <typename ... DEGS>
 BRY::bry_float_t& BRY::Polynomial<DIM>::coeff(DEGS ... exponents) {
     static_assert(is_uniform_convertible_type<bry_deg_t, DEGS ...>(), "All parameters passed to `coeff` must be degree type (`bry_deg_t`)");
@@ -38,25 +43,30 @@ BRY::bry_float_t BRY::Polynomial<DIM>::operator()(FLTS ... x) const {
 }
 
 template <std::size_t DIM>
-std::ostream& BRY::Polynomial<DIM>::print(std::ostream& os) const {
+std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM>& p) {
     bool first = true;
-    for (std::size_t i = 0; i < m_container.size(); ++i) {
-        if (m_container[i] == BRY::bry_float_t{}) 
+    for (std::size_t i = 0; i < p.m_container.size(); ++i) {
+        if (p.m_container[i] == BRY::bry_float_t{}) 
             continue;
 
         if (!first)
             os << BRY_LOG_WHITE(" + ");
         first = false;
 
-        os << BRY_LOG_BWHITE(m_container[i]);
-        std::array<BRY::bry_deg_t, DIM> degrees = unwrap(i);
+        os << BRY_LOG_BYELLOW(p.m_container[i]);
+        std::array<BRY::bry_deg_t, DIM> degrees = p.unwrap(i);
         for (std::size_t dim = 0; dim < DIM; ++dim) {
             if (degrees[dim] > 0)
-                os << BRY_LOG_GREEN("x") << BRY_LOG_BGREEN(degrees[dim]);
+                os << BRY_LOG_WHITE("(x" << dim << "^") << BRY_LOG_BGREEN(degrees[dim]) << BRY_LOG_WHITE(")");
         }
     }
     return os;
 }
+
+//template <std::size_t DIM>
+//BRY_INL const std::vector<bry_float_t>& BRY::Polynomial<DIM>::container() const {
+//    return m_container;
+//}
 
 template <std::size_t DIM>
 std::size_t BRY::Polynomial<DIM>::wrap(const std::array<bry_deg_t, DIM>& exponents) const {
@@ -92,8 +102,9 @@ std::array<BRY::bry_deg_t, DIM> BRY::Polynomial<DIM>::unwrap(std::size_t idx) co
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> BRY::operator+(const Polynomial<DIM>& p_1, const Polynomial<DIM>& p_2) {
-    const Polynomial<DIM>* p_big, p_small;
+BRY::Polynomial<DIM> operator+(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2) {
+    const BRY::Polynomial<DIM>* p_big;
+    const BRY::Polynomial<DIM>* p_small;
     if ((p_1.m_degree > p_2.m_degree)) {
         p_big = &p_1;
         p_small = &p_2;
@@ -102,26 +113,29 @@ BRY::Polynomial<DIM> BRY::operator+(const Polynomial<DIM>& p_1, const Polynomial
         p_small = &p_1;
     }
 
-    Polynomial<DIM> p_new = *p_big;
+    BRY::Polynomial<DIM> p_new = *p_big;
 
-    for (std::size_t i = 0; i < p_small->container.size(); ++i) {
-        p_new.m_container[i] += p_small->conatiner[i];
+    std::size_t deg_diff = p_big->m_degree - p_small->m_degree;
+    std::size_t i_big = 0;
+    for (std::size_t i_small = 0; i_small < p_small->m_container.size(); ++i_small) {
+        p_new.m_container[i_big] += p_small->m_container[i_small];
+        i_big += ((i_small + 1) % p_small->m_degree) ? 1 : 1 + deg_diff;
     }
     
     return p_new;
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> BRY::operator-(const Polynomial<DIM>& p_1, const Polynomial<DIM>& p_2) {
+BRY::Polynomial<DIM> operator-(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2) {
 
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> BRY::operator*(const Polynomial<DIM>& p_1, const Polynomial<DIM>& p_2) {
+BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2) {
 
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> BRY::operator^(const Polynomial<DIM>& p_1, bry_deg_t deg) {
+BRY::Polynomial<DIM> operator^(const BRY::Polynomial<DIM>& p_1, BRY::bry_deg_t deg) {
 
 }

@@ -23,7 +23,16 @@ template <std::size_t DIM>
 BRY::Polynomial<DIM> operator+(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2);
 
 template <std::size_t DIM>
+BRY::Polynomial<DIM> operator-(const BRY::Polynomial<DIM>& p);
+
+template <std::size_t DIM>
 BRY::Polynomial<DIM> operator-(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2);
+
+template <std::size_t DIM>
+BRY::Polynomial<DIM> operator*(BRY::bry_float_t scalar, const BRY::Polynomial<DIM>& p);
+
+template <std::size_t DIM>
+BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p, BRY::bry_float_t scalar);
 
 template <std::size_t DIM>
 BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2);
@@ -58,10 +67,11 @@ class Polynomial {
         //BRY_INL const std::vector<bry_float_t>& container() const;
 
         friend std::ostream& operator<<<DIM>(std::ostream& os, const Polynomial& p);
-    //private:
+
+    private:
         BRY_INL std::size_t wrap(const std::array<bry_deg_t, DIM>& exponents) const;
         BRY_INL std::array<bry_deg_t, DIM> unwrap(std::size_t idx) const;
-        
+
     private:
         std::size_t m_degree;
         std::vector<bry_float_t> m_container;
@@ -70,6 +80,7 @@ class Polynomial {
         //template <std::size_t _DIM>
         friend Polynomial operator+<DIM>(const Polynomial& p_1, const Polynomial& p_2);
         friend Polynomial operator-<DIM>(const Polynomial& p_1, const Polynomial& p_2);
+        friend Polynomial operator*<DIM>(bry_float_t scalar, const BRY::Polynomial<DIM>& p);
         friend Polynomial operator*<DIM>(const Polynomial& p_1, const Polynomial& p_2);
         friend Polynomial operator^<DIM>(const Polynomial& p_1, bry_deg_t deg);
 };

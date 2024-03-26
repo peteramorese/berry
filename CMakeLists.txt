@@ -5,7 +5,6 @@ project(berry)
 find_package (Eigen3 3.3.8 REQUIRED NO_MODULE)
 find_package(Threads REQUIRED)
 
-
 if(NOT DEFINED BRY_BUILD_EXECUTABLES)
     option(BRY_BUILD_EXECUTABLES "Build executables (set to OFF for building just the library target)" ON)
 endif()

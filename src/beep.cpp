@@ -19,13 +19,13 @@ int main() {
     //DEBUG(p1.wrap(p1_exps));
     //DEBUG(p2.wrap(p1_exps));
 
-    p1.coeff(1, 3, 2) = 54.0;
-    p1.coeff(0, 0, 0) = 4.0;
-    p1.coeff(2, 0, 3) = 9.0;
+    p1.coeff(1, 3, 2) = 2.0;
+    p1.coeff(0, 0, 0) = 3.0;
+    p1.coeff(2, 0, 3) = 4.0;
 
-    p2.coeff(1, 3, 2) = 46.0;
-    p2.coeff(0, 2, 3) = 9.0;
-    p2.coeff(2, 4, 5) = 9.0;
+    p2.coeff(1, 3, 2) = 5.0;
+    p2.coeff(0, 2, 3) = 4.0;
+    p2.coeff(2, 4, 5) = 3.0;
 
     DEBUG("p1: " << p1);
     DEBUG("p2: " << p2);

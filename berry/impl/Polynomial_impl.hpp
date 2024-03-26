@@ -165,16 +165,6 @@ BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p, BRY::bry_float_t s
 template <std::size_t DIM>
 BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2) {
 
-    const BRY::Polynomial<DIM>* p_big;
-    const BRY::Polynomial<DIM>* p_small;
-    if ((p_1.m_degree > p_2.m_degree)) {
-        p_big = &p_1;
-        p_small = &p_2;
-    } else {
-        p_big = &p_2;
-        p_small = &p_1;
-    }
-
     BRY::Polynomial<DIM> p_new(p_1.m_degree + p_2.m_degree);
 
     for (std::size_t i = 0; i < p_1.m_container.size(); ++i) {
@@ -184,7 +174,7 @@ BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p_1, const BRY::Polyn
             std::array<BRY::bry_deg_t, DIM> k_unwp;
             for (std::size_t d = 0; d < DIM; ++d)
                 k_unwp[d] = i_unwp[d] + j_unwp[d];
-            p_new.m_container[p_new.wrap(k_unwp)] += p_1.m_container[i] + p_2.m_container[j];
+            p_new.m_container[p_new.wrap(k_unwp)] += p_1.m_container[i] * p_2.m_container[j];
         }
     }
 

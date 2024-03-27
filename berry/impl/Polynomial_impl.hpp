@@ -97,6 +97,13 @@ std::array<BRY::bry_deg_t, DIM> BRY::Polynomial<DIM>::unwrap(std::size_t idx) co
 }
 
 template <std::size_t DIM>
+BRY::Polynomial<DIM> operator+<DIM>(BRY::bry_float_t scalar, const BRY::Polynomial<DIM>& p) {
+    BRY::Polynomial<DIM> p_new = p;
+    p_new.m_container[0] += scalar;
+    return p_new;
+}
+
+template <std::size_t DIM>
 BRY::Polynomial<DIM> operator+(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2) {
     const BRY::Polynomial<DIM>* p_big;
     const BRY::Polynomial<DIM>* p_small;
@@ -121,17 +128,14 @@ BRY::Polynomial<DIM> operator+(const BRY::Polynomial<DIM>& p_1, const BRY::Polyn
     std::size_t i_big = 0;
 
     for (std::size_t i_small = 0; i_small < p_small->m_container.size(); ++i_small) {
-        //DEBUG("B4: i_small: " << i_small << ", i_big: " << i_big);
         p_new.m_container[i_big] += p_small->m_container[i_small];
         
         i_big += 1;
         for (int64_t d = DIM - 1; d >= 0; --d) {
-            //DEBUG("d: " << d);
             if (((i_small + 1) % small_degree_powers[d]) == 0) {
                 i_big += big_degree_powers[d] * deg_diff;
             }
         }
-        //DEBUG("AF: i_small: " << i_small << ", i_big: " << i_big);
     }
 
     return p_new;
@@ -182,6 +186,7 @@ BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p_1, const BRY::Polyn
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator^(const BRY::Polynomial<DIM>& p_1, BRY::bry_deg_t deg) {
+BRY::Polynomial<DIM> operator^(const BRY::Polynomial<DIM>& p, BRY::bry_deg_t deg) {
+    BRY::Polynomial<DIM> p_new(p_1.m_degree * deg);
 
 }

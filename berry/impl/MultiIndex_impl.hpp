@@ -9,8 +9,8 @@ BRY::MultiIndex::MultiIndex(std::size_t sz, std::size_t l1_norm, bool begin)
     : m_combination(l1_norm + sz - 1, false)
     , m_idx(sz, 0)
     , m_l1_norm(l1_norm)
-    , m_begin(begin)
-    , m_end(!begin)
+    , m_left(begin)
+    , m_right(!begin)
 {
     if (begin) {
         for (std::size_t i = 0; i < l1_norm; ++i) {
@@ -30,12 +30,16 @@ std::size_t BRY::MultiIndex::size() const {
     return m_idx.size();
 }
 
+std::size_t BRY::MultiIndex::l1Norm() const {
+    return m_l1_norm;
+}
+
 BRY::MultiIndex& BRY::MultiIndex::operator++() {
     if (std::next_permutation(m_combination.begin(), m_combination.end(), std::greater())) {
-        m_begin = false;
-        m_end = false;
+        m_left = false;
+        m_right = false;
     } else {
-        m_end = true;
+        m_right = true;
         std::prev_permutation(m_combination.begin(), m_combination.end(), std::greater());
     }
 
@@ -50,10 +54,10 @@ BRY::MultiIndex BRY::MultiIndex::operator++(int) {
 
 BRY::MultiIndex& BRY::MultiIndex::operator--() {
     if (std::prev_permutation(m_combination.begin(), m_combination.end(), std::greater())) {
-        m_begin = false;
-        m_end = false;
+        m_left = false;
+        m_right = false;
     } else {
-        m_begin = true;
+        m_left = true;
         std::next_permutation(m_combination.begin(), m_combination.end(), std::greater());
     }
 
@@ -66,12 +70,12 @@ BRY::MultiIndex BRY::MultiIndex::operator--(int) {
     return --idx;
 }
 
-bool BRY::MultiIndex::begin() const {
-    return m_begin;
+bool BRY::MultiIndex::left() const {
+    return m_left;
 }
 
-bool BRY::MultiIndex::end() const {
-    return m_end;
+bool BRY::MultiIndex::right() const {
+    return m_right;
 }
 
 std::size_t BRY::MultiIndex::operator[](std::size_t d) const {
@@ -79,6 +83,14 @@ std::size_t BRY::MultiIndex::operator[](std::size_t d) const {
     ASSERT(d < m_idx.size(), "Subscript d is out of bounds");
 #endif
     return m_idx[d];
+}
+
+std::vector<std::size_t>::const_iterator BRY::MultiIndex::begin() const {
+    return m_idx.begin();
+}
+
+std::vector<std::size_t>::const_iterator BRY::MultiIndex::end() const {
+    return m_idx.end();
 }
 
 void BRY::MultiIndex::updateIdx() {

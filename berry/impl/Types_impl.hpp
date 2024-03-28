@@ -41,6 +41,14 @@ void _setArrayElement(std::array<T, sizeof...(ARGS_T)>& array, const std::tuple<
     }
 }
 
+template <std::size_t I, typename... ARGS_T>
+void _setExponentVecElement(BRY::ExponentVec<sizeof...(ARGS_T)>& exp, const std::tuple<ARGS_T&&...>& args_tuple) {
+    if constexpr (I < sizeof...(ARGS_T)) {
+        exp[I] = std::get<I>(args_tuple);
+        _setExponentVecElement<I + 1, ARGS_T...>(exp, args_tuple);
+    }
+}
+
 }
 
 template <typename T, typename... ARGS_T>
@@ -62,4 +70,15 @@ std::array<T, sizeof...(ARGS_T)> BRY::makeArray(ARGS_T&&... args) {
     _BRY::_setArrayElement<0, T, ARGS_T...>(array, args_tuple);
 
     return array;
+}
+
+template <typename... ARGS_T>
+BRY::ExponentVec<sizeof...(ARGS_T)> BRY::makeExponentVec(ARGS_T&&... args) {
+    static_assert(is_uniform_convertible_type<bry_float_t, ARGS_T ...>(), "All parameters passed to `makeExponentVec` must be `bry_float_t` type");
+    std::tuple<ARGS_T&&...> args_tuple(std::forward<ARGS_T>(args)...);
+
+    ExponentVec<sizeof...(ARGS_T)> exp;
+    _BRY::_setExponentVecElement<0, ARGS_T...>(exp, args_tuple);
+
+    return exp;
 }

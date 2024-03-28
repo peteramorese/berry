@@ -7,9 +7,8 @@
 #include <vector>
 #include <array>
 #include <memory>
-#include <iostream>
 
-
+#include <Eigen/Core>
 
 /// Forward declarations
 namespace BRY {
@@ -72,8 +71,8 @@ class Polynomial {
         friend std::ostream& operator<<<DIM>(std::ostream& os, const Polynomial& p);
 
     private:
-        BRY_INL std::size_t wrap(const std::array<bry_deg_t, DIM>& exponents) const;
-        BRY_INL std::array<bry_deg_t, DIM> unwrap(std::size_t idx) const;
+        BRY_INL std::size_t wrap(const ExponentVec<DIM>& exponents) const;
+        BRY_INL ExponentVec<DIM> unwrap(std::size_t idx) const;
 
     private:
         std::size_t m_degree;

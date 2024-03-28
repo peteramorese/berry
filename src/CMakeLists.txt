@@ -8,5 +8,6 @@ foreach(EXEC_FILE ${BRY_EXECUTABLES})
     target_include_directories(${EXEC_NAME} PRIVATE
         ${BRY_LIBRARY_DIR} 
         ${BRY_LIBRARY_DIR}/impl
+        ${BRY_DEPENDENCY_INCLUDE_DIRS}
     )
 endforeach()

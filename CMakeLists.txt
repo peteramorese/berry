@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(berry)
 
-#find_package (Eigen3 3.3.8 REQUIRED NO_MODULE)
+find_package (Eigen3 3.3.8 REQUIRED NO_MODULE)
 find_package(Threads REQUIRED)
 
 if(NOT DEFINED BRY_BUILD_EXECUTABLES)

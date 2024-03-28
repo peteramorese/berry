@@ -4,6 +4,8 @@
 //#include <experimental/array>
 
 #include "Polynomial.h"
+#include "MultiIndex.h"
+#include "Operations.h"
 
 template <std::size_t DIM>
 BRY::Polynomial<DIM>::Polynomial(bry_deg_t degree)
@@ -20,7 +22,7 @@ template <typename ... DEGS>
 BRY::bry_float_t& BRY::Polynomial<DIM>::coeff(DEGS ... exponents) {
     static_assert(is_uniform_convertible_type<bry_deg_t, DEGS ...>(), "All parameters passed to `coeff` must be degree type (`bry_deg_t`)");
     static_assert(sizeof...(DEGS) == DIM, "Number of exponents must match the dimension of the polynomial");
-    return m_container[wrap(makeArray<bry_deg_t>(exponents...))];
+    return m_container[wrap(makeExponentVec<bry_deg_t>(exponents...))];
 }
 
 template <std::size_t DIM>
@@ -28,7 +30,7 @@ template <typename ... DEGS>
 const BRY::bry_float_t& BRY::Polynomial<DIM>::coeff(DEGS ... exponents) const {
     static_assert(is_uniform_convertible_type<bry_deg_t, DEGS ...>(), "All parameters passed to `coeff` must be degree type (`bry_deg_t`)");
     static_assert(sizeof...(DEGS) == DIM, "Number of exponents must match the dimension of the polynomial");
-    return m_container[wrap(makeArray<bry_deg_t>(exponents...))];
+    return m_container[wrap(makeExponentVec<bry_deg_t>(exponents...))];
 }
 
 /* TODO */
@@ -54,7 +56,7 @@ std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM>& p) {
         first = false;
 
         os << BRY_LOG_BYELLOW(p.m_container[i]);
-        std::array<BRY::bry_deg_t, DIM> degrees = p.unwrap(i);
+        BRY::ExponentVec<DIM> degrees = p.unwrap(i);
         for (std::size_t dim = 0; dim < DIM; ++dim) {
             if (degrees[dim] > 0)
                 os << BRY_LOG_WHITE("(x" << dim << "^") << BRY_LOG_BGREEN(degrees[dim]) << BRY_LOG_WHITE(")");
@@ -64,7 +66,7 @@ std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM>& p) {
 }
 
 template <std::size_t DIM>
-std::size_t BRY::Polynomial<DIM>::wrap(const std::array<bry_deg_t, DIM>& exponents) const {
+std::size_t BRY::Polynomial<DIM>::wrap(const ExponentVec<DIM>& exponents) const {
     std::size_t ret_idx = 0;
 
     for (std::size_t i = 0; i < DIM; ++i) {
@@ -80,12 +82,12 @@ std::size_t BRY::Polynomial<DIM>::wrap(const std::array<bry_deg_t, DIM>& exponen
 }
 
 template <std::size_t DIM>
-std::array<BRY::bry_deg_t, DIM> BRY::Polynomial<DIM>::unwrap(std::size_t idx) const {
+BRY::ExponentVec<DIM> BRY::Polynomial<DIM>::unwrap(std::size_t idx) const {
 #ifdef BRY_ENABLE_BOUNDS_CHECK
     ASSERT(idx < std::pow(m_degree + 1, DIM), "Wrapped index (" << idx << ") is out of bounds (max index is " << std::pow(m_degree + 1, DIM) << ")");
 #endif
 
-    std::array<bry_deg_t, DIM> exponents;
+    ExponentVec<DIM> exponents;
 
     std::size_t temp_mod = idx;
     for (std::size_t i = 0; i < DIM; ++i) {
@@ -172,10 +174,10 @@ BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p_1, const BRY::Polyn
     BRY::Polynomial<DIM> p_new(p_1.m_degree + p_2.m_degree);
 
     for (std::size_t i = 0; i < p_1.m_container.size(); ++i) {
-        std::array<BRY::bry_deg_t, DIM> i_unwp = p_1.unwrap(i);
+        BRY::ExponentVec<DIM> i_unwp = p_1.unwrap(i);
         for (std::size_t j = 0; j < p_2.m_container.size(); ++j) {
-            std::array<BRY::bry_deg_t, DIM> j_unwp = p_2.unwrap(j);
-            std::array<BRY::bry_deg_t, DIM> k_unwp;
+            BRY::ExponentVec<DIM> j_unwp = p_2.unwrap(j);
+            BRY::ExponentVec<DIM> k_unwp;
             for (std::size_t d = 0; d < DIM; ++d)
                 k_unwp[d] = i_unwp[d] + j_unwp[d];
             p_new.m_container[p_new.wrap(k_unwp)] += p_1.m_container[i] * p_2.m_container[j];
@@ -189,4 +191,18 @@ template <std::size_t DIM>
 BRY::Polynomial<DIM> operator^(const BRY::Polynomial<DIM>& p, BRY::bry_deg_t deg) {
     BRY::Polynomial<DIM> p_new(p.m_degree * deg);
 
+    for (BRY::MultiIndex midx(p.m_container.size(), deg); !midx.right(); ++midx) {
+        BRY::ExponentVec<DIM> sum_exp = BRY::ExponentVec<DIM>::Zero();
+
+        BRY::bry_float_t coeff(1.0);
+        for (std::size_t monom_i = 0; monom_i < midx.size(); ++monom_i) {
+            sum_exp += midx[monom_i] * p.unwrap(monom_i);
+            coeff *= midx[monom_i] * p.m_container[monom_i];
+        }
+        DEBUG(midx);
+
+        DEBUG("Coeff: " << BRY::multinom(midx) * coeff);
+        p_new.m_container[p_new.wrap(sum_exp)] = BRY::multinom(midx) * coeff;
+    }
+    return p_new;
 }

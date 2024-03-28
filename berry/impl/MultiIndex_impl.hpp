@@ -5,45 +5,65 @@
 
 #include "MultiIndex.h"
 
-BRY::MultiIndex::MultiIndex(std::size_t sz, std::size_t l1_norm)
-    : m_midx(sz * l1_norm, false)
+BRY::MultiIndex::MultiIndex(std::size_t sz, std::size_t l1_norm, bool begin)
+    : m_combination(l1_norm + sz - 1, false)
+    , m_idx(sz, 0)
     , m_l1_norm(l1_norm)
-    , m_begin(true)
-    , m_end(false)
+    , m_begin(begin)
+    , m_end(!begin)
 {
-    for (std::size_t i = 0; i < l1_norm; ++i) {
-        m_midx[i] = true;
+    if (begin) {
+        for (std::size_t i = 0; i < l1_norm; ++i) {
+            m_combination[i] = true;
+        }
+        m_idx.front() = l1_norm;
+    } else {
+        auto it = m_combination.end();
+        for (std::size_t i = 0; i < l1_norm; ++i) {
+            *(--it) = true;
+        }
+        m_idx.back() = l1_norm;
     }
-
-    //for (bool b : m_midx) {
-    //    std::cout << b << " ";
-    //}
-    //std::cout << std::endl;
 }
 
 std::size_t BRY::MultiIndex::size() const {
-    return m_midx.size() / m_l1_norm;
+    return m_idx.size();
 }
 
 BRY::MultiIndex& BRY::MultiIndex::operator++() {
-    if (std::next_permutation(m_midx.begin(), m_midx.end(), std::greater())) {
+    if (std::next_permutation(m_combination.begin(), m_combination.end(), std::greater())) {
         m_begin = false;
         m_end = false;
     } else {
         m_end = true;
-        std::prev_permutation(m_midx.begin(), m_midx.end(), std::greater());
+        std::prev_permutation(m_combination.begin(), m_combination.end(), std::greater());
     }
 
-    for (bool b : m_midx) {
-        std::cout << b << " ";
-    }
-    std::cout << std::endl;
+    updateIdx();
     return *this;
 }
 
 BRY::MultiIndex BRY::MultiIndex::operator++(int) {
     BRY::MultiIndex idx = *this;
     return ++idx;
+}
+
+BRY::MultiIndex& BRY::MultiIndex::operator--() {
+    if (std::prev_permutation(m_combination.begin(), m_combination.end(), std::greater())) {
+        m_begin = false;
+        m_end = false;
+    } else {
+        m_begin = true;
+        std::next_permutation(m_combination.begin(), m_combination.end(), std::greater());
+    }
+
+    updateIdx();
+    return *this;
+}
+
+BRY::MultiIndex BRY::MultiIndex::operator--(int) {
+    BRY::MultiIndex idx = *this;
+    return --idx;
 }
 
 bool BRY::MultiIndex::begin() const {
@@ -56,21 +76,30 @@ bool BRY::MultiIndex::end() const {
 
 std::size_t BRY::MultiIndex::operator[](std::size_t d) const {
 #ifdef BRY_ENABLE_BOUNDS_CHECK
-    ASSERT(d < size(), "Subscript d is out of bounds");
+    ASSERT(d < m_idx.size(), "Subscript d is out of bounds");
 #endif
-    std::size_t i_d = 0;
-    for (std::size_t j = m_l1_norm * d; j < m_l1_norm * (d + 1); ++j) {
-        i_d += m_midx[j];
-    }
-    return i_d;
+    return m_idx[d];
 }
 
-std::ostream& operator<<(std::ostream& os, const BRY::MultiIndex& p) {
-    std::string s = "[";
+void BRY::MultiIndex::updateIdx() {
+    std::size_t d_i = 0;
+    std::size_t sum = 0;
+    for (bool bit : m_combination) {
+        if (bit) {
+            ++sum;
+        } else {
+            m_idx[d_i++] = sum;
+            sum = 0;
+        }
+    }
+    m_idx.back() = sum;
+}
+
+std::ostream& operator<<(std::ostream& os, const BRY::MultiIndex& idx) {
     os << BRY_LOG_BWHITE("[");
-    for (std::size_t i = 0; i < p.size(); ++i) {
-        os << BRY_LOG_GREEN(p[i]);
-        if (i < p.size() - 1)
+    for (std::size_t i = 0; i < idx.size(); ++i) {
+        os << BRY_LOG_GREEN(idx[i]);
+        if (i < idx.size() - 1)
             os << BRY_LOG_WHITE(", ");
     }
     os << BRY_LOG_BWHITE("]");

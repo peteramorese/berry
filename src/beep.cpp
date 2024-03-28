@@ -39,7 +39,15 @@ int main() {
 
     MultiIndex i(4, 3);
     //i[0];
-    for (MultiIndex i(4, 3); !i.end(); ++i) {
+    for (; !i.end(); ++i) {
         DEBUG(i);
     }
+    DEBUG("END: " << i);
+
+    MultiIndex j(4, 3, false); 
+    //i[0];
+    for (; !j.begin(); --j) {
+        DEBUG(j);
+    }
+    DEBUG("END: " << j);
 }

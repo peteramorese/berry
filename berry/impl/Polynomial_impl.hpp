@@ -97,7 +97,7 @@ std::array<BRY::bry_deg_t, DIM> BRY::Polynomial<DIM>::unwrap(std::size_t idx) co
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator+<DIM>(BRY::bry_float_t scalar, const BRY::Polynomial<DIM>& p) {
+BRY::Polynomial<DIM> operator+(BRY::bry_float_t scalar, const BRY::Polynomial<DIM>& p) {
     BRY::Polynomial<DIM> p_new = p;
     p_new.m_container[0] += scalar;
     return p_new;
@@ -187,6 +187,6 @@ BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p_1, const BRY::Polyn
 
 template <std::size_t DIM>
 BRY::Polynomial<DIM> operator^(const BRY::Polynomial<DIM>& p, BRY::bry_deg_t deg) {
-    BRY::Polynomial<DIM> p_new(p_1.m_degree * deg);
+    BRY::Polynomial<DIM> p_new(p.m_degree * deg);
 
 }

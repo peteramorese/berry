@@ -20,7 +20,7 @@ class Polynomial;
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator+<DIM>(BRY::bry_float_t scalar, const BRY::Polynomial<DIM>& p);
+BRY::Polynomial<DIM> operator+(BRY::bry_float_t scalar, const BRY::Polynomial<DIM>& p);
 
 template <std::size_t DIM>
 BRY::Polynomial<DIM> operator+(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2);

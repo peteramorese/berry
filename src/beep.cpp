@@ -1,4 +1,5 @@
 #include "Polynomial.h"
+#include "MultiIndex.h"
 
 using namespace BRY;
 
@@ -19,20 +20,26 @@ int main() {
     //DEBUG(p1.wrap(p1_exps));
     //DEBUG(p2.wrap(p1_exps));
 
-    p1.coeff(1, 3, 2) = 2.0;
-    p1.coeff(0, 0, 0) = 3.0;
-    p1.coeff(2, 0, 3) = 4.0;
+    //p1.coeff(1, 3, 2) = 2.0;
+    //p1.coeff(0, 0, 0) = 3.0;
+    //p1.coeff(2, 0, 3) = 4.0;
 
-    p2.coeff(1, 3, 2) = 5.0;
-    p2.coeff(0, 2, 3) = 4.0;
-    p2.coeff(2, 4, 5) = 3.0;
+    //p2.coeff(1, 3, 2) = 5.0;
+    //p2.coeff(0, 2, 3) = 4.0;
+    //p2.coeff(2, 4, 5) = 3.0;
 
-    DEBUG("p1: " << p1);
-    DEBUG("p2: " << p2);
-    auto p_sum = p1 + 5.0 * p2;
-    auto p_diff = p1 - p2;
-    auto p_mult = p1 * p2;
-    DEBUG("p1 + p2: " << p_sum);
-    DEBUG("p1 - p2: " << p_diff);
-    DEBUG("p1 * p2: " << p_mult);
+    //DEBUG("p1: " << p1);
+    //DEBUG("p2: " << p2);
+    //auto p_sum = p1 + 5.0 * p2;
+    //auto p_diff = p1 - p2;
+    //auto p_mult = p1 * p2;
+    //DEBUG("p1 + p2: " << p_sum);
+    //DEBUG("p1 - p2: " << p_diff);
+    //DEBUG("p1 * p2: " << p_mult);
+
+    MultiIndex i(4, 3);
+    //i[0];
+    for (MultiIndex i(4, 3); !i.end(); ++i) {
+        DEBUG(i);
+    }
 }

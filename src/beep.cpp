@@ -33,15 +33,26 @@ int main() {
     p2.coeff(0, 2, 3) = 4.0;
     p2.coeff(2, 4, 5) = 3.0;
 
+    DEBUG(p2.coeff(2, 4, 5));
     DEBUG("p1: " << p1);
     DEBUG("p2: " << p2);
-    auto p_sum = p1 + 5.0 * p2;
-    auto p_diff = p1 - p2;
-    auto p_mult = p1 * p2;
-    auto p_exp = p1 ^ 3;
+    auto p_sum = 66.0 + p1 + p2;
+    auto p_diff = p2 - 2.5 * p1;
+    ////auto p_mult = p1 * p2;
+    ////auto p_exp = p1 ^ 3;
     DEBUG("p1 + p2: " << p_sum);
     DEBUG("p1 - p2: " << p_diff);
-    DEBUG("p1 * p2: " << p_mult);
-    DEBUG("p1 ^ 3: " << p_exp);
+    //DEBUG("p1 * p2: " << p_mult);
+    //DEBUG("p1 ^ 3: " << p_exp);
 
+    //Eigen::MatrixXd m(2, 2);
+    //m(0, 0) = 1;
+    //m(1, 0) = 1;
+    //m(0, 1) = 1;
+    //m(1, 1) = 1;
+
+    //std::cout << m << std::endl;
+    //m.conservativeResize(3,3);
+
+    //std::cout << m << std::endl;
 }

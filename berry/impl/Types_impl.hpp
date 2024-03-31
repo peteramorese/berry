@@ -72,6 +72,13 @@ std::array<T, sizeof...(ARGS_T)> BRY::makeArray(ARGS_T&&... args) {
     return array;
 }
 
+template <typename T, std::size_t SZ>
+std::array<T, SZ> BRY::makeUniformArray(const T& fill_val) {
+    std::array<T, SZ> array;
+    array.fill(fill_val);
+    return array;
+}
+
 template <typename... ARGS_T>
 BRY::ExponentVec<sizeof...(ARGS_T)> BRY::makeExponentVec(ARGS_T&&... args) {
     static_assert(is_uniform_convertible_type<bry_float_t, ARGS_T ...>(), "All parameters passed to `makeExponentVec` must be `bry_float_t` type");

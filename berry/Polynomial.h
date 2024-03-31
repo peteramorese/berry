@@ -9,6 +9,7 @@
 #include <memory>
 
 #include <Eigen/Core>
+#include <unsupported/Eigen/CXX11/Tensor>
 
 /// Forward declarations
 namespace BRY {
@@ -66,22 +67,26 @@ class Polynomial {
         template <typename ... FLTS>
         bry_float_t operator()(FLTS ... x) const;
 
-        //BRY_INL const std::vector<bry_float_t>& container() const;
-
         friend std::ostream& operator<<<DIM>(std::ostream& os, const Polynomial& p);
 
     private:
-        BRY_INL std::size_t wrap(const ExponentVec<DIM>& exponents) const;
-        BRY_INL ExponentVec<DIM> unwrap(std::size_t idx) const;
+        Polynomial(const Eigen::Tensor<bry_float_t, DIM>& tensor);
+        Polynomial(Eigen::Tensor<bry_float_t, DIM>&& tensor);
+
+        template <std::size_t _DIM>
+        void formatRow(std::ostream& os) const;
+
+        //BRY_INL std::size_t wrap(const ExponentVec<DIM>& exponents) const;
+        //BRY_INL ExponentVec<DIM> unwrap(std::size_t idx) const;
 
     private:
-        std::size_t m_degree;
-        std::vector<bry_float_t> m_container;
+        Eigen::Tensor<bry_float_t, DIM> m_tensor;
 
     private:
         //template <std::size_t _DIM>
         friend Polynomial operator+<DIM>(bry_float_t scalar, const Polynomial& p);
         friend Polynomial operator+<DIM>(const Polynomial& p_1, const Polynomial& p_2);
+        friend Polynomial operator-<DIM>(const Polynomial& p);
         friend Polynomial operator-<DIM>(const Polynomial& p_1, const Polynomial& p_2);
         friend Polynomial operator*<DIM>(bry_float_t scalar, const BRY::Polynomial<DIM>& p);
         friend Polynomial operator*<DIM>(const Polynomial& p_1, const Polynomial& p_2);

@@ -14,10 +14,10 @@ namespace BRY {
 typedef double bry_float_t;
 
 /// @brief General index
-typedef uint32_t bry_idx_t;
+typedef int64_t bry_idx_t;
 
 /// @brief Degree of polynomials
-typedef uint64_t bry_deg_t;
+typedef int64_t bry_deg_t;
 
 /// @brief Vector of multinomial exponents
 template <std::size_t DIM>
@@ -34,6 +34,9 @@ constexpr bool is_uniform_convertible_type();
 
 template <typename T, typename... ARGS_T>
 std::array<T, sizeof...(ARGS_T)> makeArray(ARGS_T&&... args);
+
+template <typename T, std::size_t SZ>
+std::array<T, SZ> makeUniformArray(const T& fill_val);
 
 template <typename... ARGS_T>
 ExponentVec<sizeof...(ARGS_T)> makeExponentVec(ARGS_T&&... args);

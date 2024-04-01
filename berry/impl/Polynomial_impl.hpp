@@ -1,11 +1,30 @@
 #pragma once
 
 #include <cmath>
-//#include <experimental/array>
 
 #include "Polynomial.h"
 #include "MultiIndex.h"
 #include "Operations.h"
+
+#include <unsupported/Eigen/FFT>
+
+namespace _BRY {
+    template <std::size_t DIM>
+    Eigen::Tensor<BRY::bry_float_t, DIM> expandToMatchSize(const Eigen::Tensor<BRY::bry_float_t, DIM>& tensor, BRY::bry_deg_t sz) {
+
+        #ifdef BRY_ENABLE_BOUNDS_CHECK
+            ASSERT(tensor.dimension(0) < sz, "Input tensor is not smaller than desired size");
+        #endif
+
+        std::array<std::pair<BRY::bry_idx_t, BRY::bry_idx_t>, DIM> paddings;
+        for (std::pair<BRY::bry_idx_t, BRY::bry_idx_t>& pads : paddings) {
+            pads.first = 0;
+            pads.second = sz - tensor.dimension(0);
+        }
+
+        return tensor.pad(paddings);
+    }
+}
 
 template <std::size_t DIM>
 BRY::Polynomial<DIM>::Polynomial(bry_deg_t degree)
@@ -165,6 +184,31 @@ BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p_1, const BRY::Polyn
     //}
 
     //return p_new;
+
+    //std::array<BRY::bry_idx_t, DIM> dimensions;
+    //for (std::size_t i = 0; i < DIM; ++i)
+    //    dimensions[i] = i + 1;
+
+    //const Eigen::Tensor<BRY::bry_float_t, DIM>& input = p_1.m_tensor;
+    //const Eigen::Tensor<BRY::bry_float_t, DIM>& kernel = p_2.m_tensor;
+    //return BRY::Polynomial<DIM>(input.convolve(kernel, dimensions));
+
+    BRY::bry_deg_t desired_size = p_1.degree() + p_2.degree() + 2;
+
+    Eigen::Tensor<BRY::bry_float_t, DIM> p_1_tensor_rszd = _BRY::expandToMatchSize<DIM>(p_1.m_tensor, desired_size);
+    Eigen::Tensor<BRY::bry_float_t, DIM> p_2_tensor_rszd = _BRY::expandToMatchSize<DIM>(p_2.m_tensor, desired_size);
+
+    DEBUG(p_1_tensor_rszd.dimension(0));
+
+    std::array<BRY::bry_idx_t, DIM> dimensions;
+    for (std::size_t i = 0; i < DIM; ++i)
+        dimensions[i] = i;
+
+    Eigen::Tensor<BRY::bry_complex_t, DIM> tensor_1_fft = p_1_tensor_rszd.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(dimensions);
+    Eigen::Tensor<BRY::bry_complex_t, DIM> tensor_2_fft = p_2_tensor_rszd.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(dimensions);
+    Eigen::Tensor<BRY::bry_complex_t, DIM> product_fft = tensor_1_fft * tensor_2_fft;
+    Eigen::Tensor<BRY::bry_float_t, DIM> result = product_fft.template fft<Eigen::RealPart, Eigen::FFT_REVERSE>(dimensions);
+    return BRY::Polynomial<DIM>(std::move(result));
 }
 
 template <std::size_t DIM>

@@ -13,6 +13,9 @@ namespace BRY {
 /// @brief General floating point
 typedef double bry_float_t;
 
+/// @brief General floating point
+typedef std::complex<bry_float_t> bry_complex_t;
+
 /// @brief General index
 typedef int64_t bry_idx_t;
 

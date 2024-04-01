@@ -73,12 +73,6 @@ class Polynomial {
         Polynomial(const Eigen::Tensor<bry_float_t, DIM>& tensor);
         Polynomial(Eigen::Tensor<bry_float_t, DIM>&& tensor);
 
-        template <std::size_t _DIM>
-        void formatRow(std::ostream& os) const;
-
-        //BRY_INL std::size_t wrap(const ExponentVec<DIM>& exponents) const;
-        //BRY_INL ExponentVec<DIM> unwrap(std::size_t idx) const;
-
     private:
         Eigen::Tensor<bry_float_t, DIM> m_tensor;
 

@@ -5,8 +5,8 @@
 using namespace BRY;
 
 int main() {
-    Polynomial<3> p1(1);
-    Polynomial<3> p2(5);
+    Polynomial<2> p1(1);
+    Polynomial<2> p2(1);
 
     //std::array<bry_deg_t, 2> p1_exps;
     //p1_exps[0] = 1;
@@ -25,24 +25,31 @@ int main() {
     //p1.coeff(0, 0, 0) = 3.0;
     //p1.coeff(2, 0, 3) = 4.0;
 
-    p1.coeff(1, 0, 0) = 1.0;
-    p1.coeff(0, 1, 0) = 1.0;
-    p1.coeff(0, 0, 1) = 1.0;
+    //p1.coeff(1, 0, 0) = 1.0;
+    //p1.coeff(0, 1, 0) = 1.0;
+    //p1.coeff(0, 0, 1) = 1.0;
 
-    p2.coeff(1, 3, 2) = 5.0;
-    p2.coeff(0, 2, 3) = 4.0;
-    p2.coeff(2, 4, 5) = 3.0;
+    p1.coeff(1, 0) = 1.0;
+    p1.coeff(0, 1) = 1.0;
+    p1.coeff(0, 0) = 1.0;
 
-    DEBUG(p2.coeff(2, 4, 5));
+    p2.coeff(1, 0) = 3.0;
+    p2.coeff(0, 1) = 3.0;
+    p2.coeff(0, 0) = 3.0;
+
+    //p2.coeff(1, 3, 2) = 5.0;
+    //p2.coeff(0, 2, 3) = 4.0;
+    //p2.coeff(2, 4, 5) = 3.0;
+
     DEBUG("p1: " << p1);
     DEBUG("p2: " << p2);
     auto p_sum = 66.0 + p1 + p2;
     auto p_diff = p2 - 2.5 * p1;
-    ////auto p_mult = p1 * p2;
+    auto p_mult = p1 * p2;
     ////auto p_exp = p1 ^ 3;
-    DEBUG("p1 + p2: " << p_sum);
-    DEBUG("p1 - p2: " << p_diff);
-    //DEBUG("p1 * p2: " << p_mult);
+    //DEBUG("p1 + p2: " << p_sum);
+    //DEBUG("p1 - p2: " << p_diff);
+    DEBUG("p1 * p2: " << p_mult);
     //DEBUG("p1 ^ 3: " << p_exp);
 
     //Eigen::MatrixXd m(2, 2);

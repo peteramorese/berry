@@ -1,9 +1,9 @@
 #pragma once
 
+#include "MultiIndex.h"
+
 #include <cmath>
 #include <algorithm>
-
-#include "MultiIndex.h"
 
 BRY::MultiIndex::MultiIndex(std::size_t sz, std::size_t l1_norm, bool begin)
     : m_combination(l1_norm + sz - 1, false)

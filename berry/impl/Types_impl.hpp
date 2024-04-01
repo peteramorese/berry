@@ -2,7 +2,6 @@
 
 #include "Types.h"
 
-
 namespace _BRY {
 
 template <std::size_t I, typename T, typename ... ARGS_T>
@@ -69,6 +68,13 @@ std::array<T, sizeof...(ARGS_T)> BRY::makeArray(ARGS_T&&... args) {
     std::array<T, sizeof...(ARGS_T)> array;
     _BRY::_setArrayElement<0, T, ARGS_T...>(array, args_tuple);
 
+    return array;
+}
+
+template <typename T, std::size_t SZ>
+std::array<T, SZ> BRY::makeUniformArray(const T& fill_val) {
+    std::array<T, SZ> array;
+    array.fill(fill_val);
     return array;
 }
 

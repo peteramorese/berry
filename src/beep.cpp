@@ -5,7 +5,7 @@
 using namespace BRY;
 
 int main() {
-    Polynomial<3> p1(1);
+    Polynomial<3> p1(3);
     Polynomial<3> p2(5);
 
     //std::array<bry_deg_t, 2> p1_exps;
@@ -35,13 +35,25 @@ int main() {
 
     DEBUG("p1: " << p1);
     DEBUG("p2: " << p2);
-    auto p_sum = p1 + 5.0 * p2;
-    auto p_diff = p1 - p2;
+    auto p_sum = 66.0 + p1 + p2;
+    auto p_diff = p2 - 2.5 * p1;
     auto p_mult = p1 * p2;
     auto p_exp = p1 ^ 3;
-    DEBUG("p1 + p2: " << p_sum);
-    DEBUG("p1 - p2: " << p_diff);
+    //DEBUG("p1 + p2: " << p_sum);
+    //DEBUG("p1 - p2: " << p_diff);
     DEBUG("p1 * p2: " << p_mult);
     DEBUG("p1 ^ 3: " << p_exp);
+    //DEBUG("p2 ^ 3: " << p2 ^ 5);
+    auto test = p2 ^ 10;
 
+    //Eigen::MatrixXd m(2, 2);
+    //m(0, 0) = 1;
+    //m(1, 0) = 1;
+    //m(0, 1) = 1;
+    //m(1, 1) = 1;
+
+    //std::cout << m << std::endl;
+    //m.conservativeResize(3,3);
+
+    //std::cout << m << std::endl;
 }

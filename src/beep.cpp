@@ -44,7 +44,6 @@ int main() {
     DEBUG("p1 * p2: " << p_mult);
     DEBUG("p1 ^ 3: " << p_exp);
     //DEBUG("p2 ^ 3: " << p2 ^ 5);
-    auto test = p2 ^ 10;
 
     //Eigen::MatrixXd m(2, 2);
     //m(0, 0) = 1;
@@ -56,4 +55,12 @@ int main() {
     //m.conservativeResize(3,3);
 
     //std::cout << m << std::endl;
+
+    Eigen::Tensor<bry_float_t, 2> t(3, 3);
+    t.setValues({{1,2,3}, {4,5,6}, {7,8,9}});
+    std::cout << t <<std::endl;
+    std::array<int64_t, 2> offsets = {{1, 1}};
+    std::array<int64_t, 2> extents = {{2, 2}};
+    //Eigen::Tensor<bry_float_t, 2>
+    std::cout << t.slice(offsets, extents) <<std::endl;
 }

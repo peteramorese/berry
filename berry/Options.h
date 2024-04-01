@@ -16,7 +16,7 @@
 #define BRY_LOG_COLOR
 
 
-
+#define EIGEN_FFTW_DEFAULT
 
 
 

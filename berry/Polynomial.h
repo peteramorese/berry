@@ -11,6 +11,11 @@
 #include <Eigen/Core>
 #include <unsupported/Eigen/CXX11/Tensor>
 
+/* Threshold for which small coefficients will be ignored when printing
+    NOTE: Does not affect numerical calculations
+*/
+#define BRY_OUTPUT_FMT_ZERO_THRESH 0.00000001
+
 /// Forward declarations
 namespace BRY {
 

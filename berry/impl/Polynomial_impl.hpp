@@ -95,7 +95,7 @@ std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM>& p) {
     while (idx_arr.back() <= p.degree()) {
 
         BRY::bry_float_t coeff = p.m_tensor(idx_arr);
-        if (coeff == BRY::bry_deg_t{}) {
+        if (std::abs(coeff) < BRY_OUTPUT_FMT_ZERO_THRESH) {
             iterate();
             continue;
         }
@@ -170,35 +170,10 @@ BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p, BRY::bry_float_t s
 template <std::size_t DIM>
 BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2) {
 
-    //BRY::Polynomial<DIM> p_new(p_1.m_degree + p_2.m_degree);
-
-    //for (std::size_t i = 0; i < p_1.m_container.size(); ++i) {
-    //    BRY::ExponentVec<DIM> i_unwp = p_1.unwrap(i);
-    //    for (std::size_t j = 0; j < p_2.m_container.size(); ++j) {
-    //        BRY::ExponentVec<DIM> j_unwp = p_2.unwrap(j);
-    //        BRY::ExponentVec<DIM> k_unwp;
-    //        for (std::size_t d = 0; d < DIM; ++d)
-    //            k_unwp[d] = i_unwp[d] + j_unwp[d];
-    //        p_new.m_container[p_new.wrap(k_unwp)] += p_1.m_container[i] * p_2.m_container[j];
-    //    }
-    //}
-
-    //return p_new;
-
-    //std::array<BRY::bry_idx_t, DIM> dimensions;
-    //for (std::size_t i = 0; i < DIM; ++i)
-    //    dimensions[i] = i + 1;
-
-    //const Eigen::Tensor<BRY::bry_float_t, DIM>& input = p_1.m_tensor;
-    //const Eigen::Tensor<BRY::bry_float_t, DIM>& kernel = p_2.m_tensor;
-    //return BRY::Polynomial<DIM>(input.convolve(kernel, dimensions));
-
     BRY::bry_deg_t desired_size = p_1.degree() + p_2.degree() + 2;
 
     Eigen::Tensor<BRY::bry_float_t, DIM> p_1_tensor_rszd = _BRY::expandToMatchSize<DIM>(p_1.m_tensor, desired_size);
     Eigen::Tensor<BRY::bry_float_t, DIM> p_2_tensor_rszd = _BRY::expandToMatchSize<DIM>(p_2.m_tensor, desired_size);
-
-    DEBUG(p_1_tensor_rszd.dimension(0));
 
     std::array<BRY::bry_idx_t, DIM> dimensions;
     for (std::size_t i = 0; i < DIM; ++i)
@@ -207,26 +182,25 @@ BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p_1, const BRY::Polyn
     Eigen::Tensor<BRY::bry_complex_t, DIM> tensor_1_fft = p_1_tensor_rszd.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(dimensions);
     Eigen::Tensor<BRY::bry_complex_t, DIM> tensor_2_fft = p_2_tensor_rszd.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(dimensions);
     Eigen::Tensor<BRY::bry_complex_t, DIM> product_fft = tensor_1_fft * tensor_2_fft;
+
     Eigen::Tensor<BRY::bry_float_t, DIM> result = product_fft.template fft<Eigen::RealPart, Eigen::FFT_REVERSE>(dimensions);
     return BRY::Polynomial<DIM>(std::move(result));
 }
 
 template <std::size_t DIM>
 BRY::Polynomial<DIM> operator^(const BRY::Polynomial<DIM>& p, BRY::bry_deg_t deg) {
-    BRY::Polynomial<DIM> p_new(p.m_degree * deg);
 
-    for (BRY::MultiIndex midx(p.m_container.size(), deg); !midx.right(); ++midx) {
-        BRY::ExponentVec<DIM> sum_exp = BRY::ExponentVec<DIM>::Zero();
+    BRY::bry_deg_t desired_size = deg * (p.degree() + 1);
 
-        BRY::bry_float_t coeff(1.0);
-        for (std::size_t monom_i = 0; monom_i < midx.size(); ++monom_i) {
-            sum_exp += midx[monom_i] * p.unwrap(monom_i);
-            coeff *= midx[monom_i] * p.m_container[monom_i];
-        }
-        DEBUG(midx);
+    Eigen::Tensor<BRY::bry_float_t, DIM> p_tensor_rszd = _BRY::expandToMatchSize<DIM>(p.m_tensor, desired_size);
 
-        DEBUG("Coeff: " << BRY::multinom(midx) * coeff);
-        p_new.m_container[p_new.wrap(sum_exp)] = BRY::multinom(midx) * coeff;
-    }
-    return p_new;
+    std::array<BRY::bry_idx_t, DIM> dimensions;
+    for (std::size_t i = 0; i < DIM; ++i)
+        dimensions[i] = i;
+
+    Eigen::Tensor<BRY::bry_complex_t, DIM> tensor_fft = p_tensor_rszd.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(dimensions);
+    Eigen::Tensor<BRY::bry_complex_t, DIM> exp_fft = tensor_fft.pow(static_cast<BRY::bry_float_t>(deg));
+
+    Eigen::Tensor<BRY::bry_float_t, DIM> result = exp_fft .template fft<Eigen::RealPart, Eigen::FFT_REVERSE>(dimensions);
+    return BRY::Polynomial<DIM>(std::move(result));
 }

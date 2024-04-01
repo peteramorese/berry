@@ -4,4 +4,4 @@
 C++ polynomial library that handles efficient operations among multi-variate polynomials.
 
 ## Dependencies
-`Eigen 3.3.8` (This library relies on Eigen tensors under-the-hood)
+ - `Eigen 3.3.8` (This library relies on Eigen tensors under-the-hood)

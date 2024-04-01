@@ -43,6 +43,8 @@ int main() {
     //DEBUG("p1 - p2: " << p_diff);
     DEBUG("p1 * p2: " << p_mult);
     DEBUG("p1 ^ 3: " << p_exp);
+    //DEBUG("p2 ^ 3: " << p2 ^ 5);
+    auto test = p2 ^ 10;
 
     //Eigen::MatrixXd m(2, 2);
     //m(0, 0) = 1;

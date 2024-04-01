@@ -2,7 +2,6 @@
 
 #include "Types.h"
 
-
 namespace _BRY {
 
 template <std::size_t I, typename T, typename ... ARGS_T>

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <iostream>
-
 #include "Options.h"
+
+#include <iostream>
 
 #ifdef BRY_LOG_COLOR
     #define BRY_LOG_WHITE(msg) "\033[0;37m" << msg << "\033[0m"

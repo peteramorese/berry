@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cmath>
-
 #include "Polynomial.h"
 #include "MultiIndex.h"
 #include "Operations.h"
+
+#include <cmath>
 
 #include <unsupported/Eigen/FFT>
 
@@ -44,7 +44,7 @@ BRY::Polynomial<DIM>::Polynomial(Eigen::Tensor<bry_float_t, DIM>&& tensor)
 {}
 
 template <std::size_t DIM>
-std::size_t BRY::Polynomial<DIM>::degree() const {
+BRY::bry_deg_t BRY::Polynomial<DIM>::degree() const {
     return m_tensor.dimension(0) - 1;
 }
 

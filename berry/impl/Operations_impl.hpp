@@ -1,10 +1,10 @@
 #pragma once
 
+#include "Operations.h"
+
 #include <cmath>
 #include <algorithm>
 #include <numeric>
-
-#include "Operations.h"
 
 BRY::bry_float_t BRY::factorial(std::size_t n) {
     BRY::bry_float_t val(1.0);

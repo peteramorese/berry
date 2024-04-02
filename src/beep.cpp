@@ -69,7 +69,7 @@ int main() {
     ////Eigen::Tensor<bry_float_t, 2>
     //std::cout << t.slice(offsets, extents) <<std::endl;
 
-    for (MultiIndex<FixedNormIncrementer> idx(3, 5); !idx.right(); ++idx) {
+    for (MultiIndex<ExhaustiveIncrementer> idx(3, 5, false); !idx.left(); --idx) {
         DEBUG(idx);
     }
 }

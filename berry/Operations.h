@@ -9,14 +9,20 @@
 
 namespace BRY {
 
-static BRY_INL BRY::bry_float_t factorial(std::size_t n);
+static BRY_INL std::size_t factorial(std::size_t n);
 
-static BRY_INL BRY::bry_float_t binom(std::size_t n, std::size_t k);
+static BRY_INL std::size_t binom(std::size_t n, std::size_t k);
+
+/// @brief Creates a vector of all binomial coefficients (n'th row of Pascal's triangle)
+/// of the form [(n choose 0), (n choose 1), ..., (n choose n)]
+/// @param n 
+/// @return Array of size `n + 1` of all binomial coefficients from k = 0 to k = n
+static std::vector<std::size_t> pascalRow(std::size_t n);
 
 template <class ITERABLE_T>
-static BRY_INL BRY::bry_float_t multinom(std::size_t n, const ITERABLE_T& multi_k);
+static BRY_INL std::size_t multinom(std::size_t n, const ITERABLE_T& multi_k);
 
-static BRY_INL BRY::bry_float_t multinom(const MultiIndex& idx);
+static BRY_INL std::size_t multinom(const MultiIndex<>& idx);
 
 }
 

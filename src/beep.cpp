@@ -56,11 +56,20 @@ int main() {
 
     //std::cout << m << std::endl;
 
-    Eigen::Tensor<bry_float_t, 2> t(3, 3);
-    t.setValues({{1,2,3}, {4,5,6}, {7,8,9}});
-    std::cout << t <<std::endl;
-    std::array<int64_t, 2> offsets = {{1, 1}};
-    std::array<int64_t, 2> extents = {{2, 2}};
-    //Eigen::Tensor<bry_float_t, 2>
-    std::cout << t.slice(offsets, extents) <<std::endl;
+    //Eigen::Tensor<bry_float_t, 2> t(3, 3);
+    //t.setValues({{1,2,3}, {4,5,6}, {7,8,9}});
+
+
+    //Eigen::Tensor<bry_float_t, 2> t = makeIncrementTensor(std::array<bry_deg_t,2>{{3,3}}, 0);
+    //DEBUG(t(0,2) << ", " << t(2, 0));
+
+    //std::cout << t <<std::endl;
+    //std::array<int64_t, 2> offsets = {{1, 1}};
+    //std::array<int64_t, 2> extents = {{2, 2}};
+    ////Eigen::Tensor<bry_float_t, 2>
+    //std::cout << t.slice(offsets, extents) <<std::endl;
+
+    for (MultiIndex<FixedNormIncrementer> idx(3, 5); !idx.right(); ++idx) {
+        DEBUG(idx);
+    }
 }

@@ -102,10 +102,12 @@ class Polynomial {
         template <typename ... FLTS>
         bry_float_t operator()(FLTS ... x) const;
 
-        friend std::ostream& operator<<<DIM>(std::ostream& os, const Polynomial& p);
+        /// @brief Get the Number of monomials
+        bry_deg_t nMonomials() const;
 
         BRY_INL const Eigen::Tensor<bry_float_t, DIM>& tensor() const;
 
+        friend std::ostream& operator<<<DIM>(std::ostream& os, const Polynomial& p);
     private:
 
     private:

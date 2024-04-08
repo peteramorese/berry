@@ -113,6 +113,11 @@ std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis
 }
 
 template <std::size_t DIM, BRY::Basis BASIS>
+BRY::bry_deg_t BRY::Polynomial<DIM, BASIS>::nMonomials() const {
+    return m_tensor.size();
+}
+
+template <std::size_t DIM, BRY::Basis BASIS>
 const Eigen::Tensor<BRY::bry_float_t, DIM>& BRY::Polynomial<DIM, BASIS>::tensor() const {
     return m_tensor;
 }

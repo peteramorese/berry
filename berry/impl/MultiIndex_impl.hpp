@@ -112,13 +112,26 @@ BRY::MultiIndex<INCREMENTER>::MultiIndex(std::size_t sz, bry_idx_t index_constra
 {}
 
 template <class INCREMENTER>
+BRY::MultiIndex<INCREMENTER>::MultiIndex(INCREMENTER&& incrementer, std::vector<bry_idx_t>&& initial_idx) 
+    : m_idx(std::move(initial_idx))
+    , m_incrementer(std::move(incrementer))
+    , m_left(begin)
+    , m_right(!begin)
+{}
+
+template <class INCREMENTER>
 std::size_t BRY::MultiIndex<INCREMENTER>::size() const {
     return m_idx.size();
 }
 
 template <class INCREMENTER>
-BRY::bry_idx_t BRY::MultiIndex<INCREMENTER>::indexConstraint() const {
-    return m_incrementer.indexConstraint();
+INCREMENTER& BRY::MultiIndex<INCREMENTER>::incrementer() {
+    return m_incrementer;
+}
+
+template <class INCREMENTER>
+const INCREMENTER& BRY::MultiIndex<INCREMENTER>::incrementer() const {
+    return m_incrementer;
 }
 
 template <class INCREMENTER>

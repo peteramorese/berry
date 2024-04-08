@@ -37,21 +37,38 @@ class ExhaustiveIncrementer {
         bry_idx_t m_linfty_norm;
 };
 
+/// @brief Increment the multi index through all indices that have a L-infinity norm upper bound
+class BoundedExhaustiveIncrementer {
+    public:
+        BoundedExhaustiveIncrementer(std::size_t sz, const std::vector<bry_idx_t>& index_bounds, bool left);
+        BRY_INL bry_idx_t indexConstraint() const;
+        BRY_INL bool increment(std::vector<bry_idx_t>& current_idx);
+        BRY_INL bool decrement(std::vector<bry_idx_t>& current_idx);
+    private:
+        bry_idx_t m_linfty_norm;
+};
+
 template <class INCREMENTER = ExhaustiveIncrementer>
 class MultiIndex {
     public:
-        /// @brief Constructor
+        /// @brief Automatic incrementer constructor (Supported for FixedNormIncrementer and ExhaustiveIncrementer)
         /// @param sz Size of the index (number of individual indices)
         /// @param index_constraint Norm constraint passed to the incrementer
         /// @param left Constructed at the first combination if true, last combination otherwise
         /// combination, i.e. (0, ..., 0, l1_norm)
         MultiIndex(std::size_t sz, bry_idx_t index_constraint, bool left = true);
 
+        /// @brief Generic incrementer constructor (Supported for any custom incrementer)
+        /// @param incrementer Incrementer object 
+        /// @param initial_idx Initial index
+        MultiIndex(INCREMENTER&& incrementer, std::vector<bry_idx_t>&& initial_idx);
+
         /// @brief Number of unary indices
         BRY_INL std::size_t size() const;
 
         /// @brief Max norm constraint passed to incrementer
-        BRY_INL bry_idx_t indexConstraint() const;
+        BRY_INL INCREMENTER& incrementer();
+        BRY_INL const INCREMENTER& incrementer() const;
 
         /// @brief Prefix increment. Moves the multi index along (right) by one step
         BRY_INL MultiIndex& operator++();

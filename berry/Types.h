@@ -37,16 +37,16 @@ template <typename T, typename... ARGS_T>
 constexpr bool is_uniform_convertible_type();
 
 template <typename T, typename... ARGS_T>
-std::array<T, sizeof...(ARGS_T)> makeArray(ARGS_T&&... args);
+static std::array<T, sizeof...(ARGS_T)> makeArray(ARGS_T&&... args);
 
 template <typename T, std::size_t SZ>
-std::array<T, SZ> makeUniformArray(const T& fill_val);
+static std::array<T, SZ> makeUniformArray(const T& fill_val);
 
 template <typename... ARGS_T>
-ExponentVec<sizeof...(ARGS_T)> makeExponentVec(ARGS_T&&... args);
+static ExponentVec<sizeof...(ARGS_T)> makeExponentVec(ARGS_T&&... args);
 
 template <std::size_t DIM>
-BRY_INL Eigen::Tensor<bry_float_t, DIM> makeIncrementTensor(const std::array<bry_deg_t, DIM>& dimensions, bry_deg_t increment_idx, bry_deg_t offset = 0);
+static BRY_INL Eigen::Tensor<bry_float_t, DIM> makeIncrementTensor(const std::array<bry_deg_t, DIM>& dimensions, bry_deg_t increment_idx, bry_deg_t offset = 0);
 
 }
 

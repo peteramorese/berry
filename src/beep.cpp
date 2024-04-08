@@ -56,20 +56,28 @@ int main() {
 
     //std::cout << m << std::endl;
 
-    //Eigen::Tensor<bry_float_t, 2> t(3, 3);
-    //t.setValues({{1,2,3}, {4,5,6}, {7,8,9}});
+    // Create 2 matrices using tensors of rank 2
+    Eigen::Tensor<int, 3> a(2, 2, 2);
+    a.setValues({{{1, 5}, {3, 7}}, {{2, 6}, {4, 8}}});
+    Eigen::Tensor<int, 2> a_vec = a.reshape(std::array<int, 2>{{8, 1}});
+    //Eigen::Tensor<int, 1> b_mat = b.reshape(std::array<int, 2>{{4, 4}})
 
-
-    //Eigen::Tensor<bry_float_t, 2> t = makeIncrementTensor(std::array<bry_deg_t,2>{{3,3}}, 0);
-    //DEBUG(t(0,2) << ", " << t(2, 0));
-
-    //std::cout << t <<std::endl;
-    //std::array<int64_t, 2> offsets = {{1, 1}};
-    //std::array<int64_t, 2> extents = {{2, 2}};
-    ////Eigen::Tensor<bry_float_t, 2>
-    //std::cout << t.slice(offsets, extents) <<std::endl;
-
-    for (MultiIndex<ExhaustiveIncrementer> idx(3, 5, false); !idx.left(); --idx) {
-        DEBUG(idx);
+    for (MultiIndex midx(3, 2); !midx.right(); ++midx) {
+        std::array<int, 3> inp;
+        for (std::size_t i = 0; i < 3; ++i) {
+            inp[i] = midx[i];
+        }
+        DEBUG("Midx: " << midx << " element: " << a(inp));
     }
+
+    std::cout << a << std::endl;
+    std::cout << a_vec << std::endl;
+    //std::cout << b << std::endl;
+
+    //// Compute the traditional matrix product
+    //Eigen::array<Eigen::IndexPair<int>, 1> product_dims = { Eigen::IndexPair<int>(1, 0) };
+    //Eigen::Tensor<int, 2> prod = a.contract(b, product_dims);
+
+    //std::cout << prod << std::endl;
+
 }

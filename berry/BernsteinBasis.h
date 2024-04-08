@@ -18,6 +18,8 @@ class BernsteinBasis {
         /// If this is 0, the degree of the Bernstein polynomial is the same as the power polynomial
         /// @return Polynomial in the Bernstein basis
         Polynomial<DIM, Basis::Bernstein> to(const Polynomial<DIM, Basis::Power>& p, bry_deg_t degree_increase = 0);
+
+        Eigen::Tensor<bry_float_t, DIM> getTransformationTensor(const Polynomial<DIM, Basis::Power>& p, bry_deg_t degree_increase = 0);
         
         /* TODO */
         //Polynomial<DIM, Basis::Power> from(const Polynomial<DIM, Basis::Bernstein>& p);
@@ -25,7 +27,7 @@ class BernsteinBasis {
         BRY_INL bry_float_t minCoeff() const;
 
     private:
-        Eigen::Tensor<bry_float_t, DIM> getDenominatorTensor()
+        Eigen::Tensor<bry_float_t, DIM> getDenominatorTensor();
 
     private:
         bry_float_t m_min_coeff;

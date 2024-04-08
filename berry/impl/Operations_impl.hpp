@@ -51,5 +51,5 @@ std::size_t BRY::multinom(std::size_t n, const ITERABLE_T& multi_k) {
 }
 
 std::size_t BRY::multinom(const MultiIndex<>& idx) {
-    return multinom(idx.indexConstraint(), idx);
+    return multinom(idx.incrementer().indexConstraint(), idx);
 }

@@ -57,21 +57,21 @@ int main() {
     //std::cout << m << std::endl;
 
     // Create 2 matrices using tensors of rank 2
-    Eigen::Tensor<int, 3> a(2, 2, 2);
-    a.setValues({{{1, 5}, {3, 7}}, {{2, 6}, {4, 8}}});
-    Eigen::Tensor<int, 2> a_vec = a.reshape(std::array<int, 2>{{8, 1}});
-    //Eigen::Tensor<int, 1> b_mat = b.reshape(std::array<int, 2>{{4, 4}})
+    //Eigen::Tensor<int, 3> a(2, 2, 2);
+    //a.setValues({{{1, 5}, {3, 7}}, {{2, 6}, {4, 8}}});
+    //Eigen::Tensor<int, 2> a_vec = a.reshape(std::array<int, 2>{{8, 1}});
+    ////Eigen::Tensor<int, 1> b_mat = b.reshape(std::array<int, 2>{{4, 4}})
 
-    for (MultiIndex midx(3, 2); !midx.right(); ++midx) {
-        std::array<int, 3> inp;
-        for (std::size_t i = 0; i < 3; ++i) {
-            inp[i] = midx[i];
-        }
-        DEBUG("Midx: " << midx << " element: " << a(inp));
-    }
+    //for (MultiIndex midx(3, 2); !midx.right(); ++midx) {
+    //    std::array<int, 3> inp;
+    //    for (std::size_t i = 0; i < 3; ++i) {
+    //        inp[i] = midx[i];
+    //    }
+    //    DEBUG("Midx: " << midx << " element: " << a(inp));
+    //}
 
-    std::cout << a << std::endl;
-    std::cout << a_vec << std::endl;
+    //std::cout << a << std::endl;
+    //std::cout << a_vec << std::endl;
     //std::cout << b << std::endl;
 
     //// Compute the traditional matrix product
@@ -79,5 +79,14 @@ int main() {
     //Eigen::Tensor<int, 2> prod = a.contract(b, product_dims);
 
     //std::cout << prod << std::endl;
+    //BoundedExhaustiveIncrementer incrementer(std::vector<bry_idx_t>{2, 1, 4}, 4);
+    for (auto midx = mIdxBEW(std::vector<bry_idx_t>{2, 1, 4}, 4); !midx.last(); ++midx) {
+        DEBUG("Midx: " << midx << " wrapped idx: " << midx.incrementer().wrappedIdx());
+    }
+
+    uint32_t i = 0;
+    for (auto midx = mIdxW(3, 4); !midx.last(); ++midx) {
+        DEBUG("Exhaustive Midx: " << midx << " wrapped idx: " << i++ << " comp to: " << midx.incrementer().wrappedIdx());
+    }
 
 }

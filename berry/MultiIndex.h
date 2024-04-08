@@ -10,10 +10,40 @@
 
 namespace BRY {
 
+/// @brief Increment the multi index through all indices that have a L-infinity norm upper bound
+class ExhaustiveIncrementer {
+    public:
+        ExhaustiveIncrementer(std::vector<bry_idx_t>& initial_idx, bool first,
+            std::size_t sz, bry_idx_t index_constraint);
+        BRY_INL bry_idx_t indexConstraint() const;
+        BRY_INL bool increment(std::vector<bry_idx_t>& current_idx);
+        BRY_INL bool decrement(std::vector<bry_idx_t>& current_idx);
+    private:
+        bry_idx_t m_linfty_norm;
+};
+
+/// @brief Increment the multi index through all indices that have a L-infinity norm upper bound (keeps track of the wrapped index)
+class ExhaustiveIncrementerWrap {
+    public:
+        ExhaustiveIncrementerWrap(std::vector<bry_idx_t>& initial_idx, bool first,
+            std::size_t sz, bry_idx_t index_constraint);
+        BRY_INL bry_idx_t indexConstraint() const;
+        BRY_INL bool increment(std::vector<bry_idx_t>& current_idx);
+        BRY_INL bool decrement(std::vector<bry_idx_t>& current_idx);
+
+        /// @brief This incrementer keeps track of the wrapped index (equivalent flattened 1D index) given the index constraint
+        /// @return Wrapped index
+        BRY_INL bry_idx_t wrappedIdx() const;
+    private:
+        bry_idx_t m_linfty_norm;
+        bry_idx_t m_wrapped_idx;
+};
+
 /// @brief Increment the multi index through all indices that have a fixed L-1 norm
 class FixedNormIncrementer {
     public:
-        FixedNormIncrementer(std::size_t sz, bry_idx_t index_constraint, bool left, std::vector<bry_idx_t>& initial_idx);
+        FixedNormIncrementer(std::vector<bry_idx_t>& initial_idx, bool first,
+            std::size_t sz, bry_idx_t index_constraint);
         BRY_INL bry_idx_t indexConstraint() const;
         BRY_INL bool increment(std::vector<bry_idx_t>& current_idx);
         BRY_INL bool decrement(std::vector<bry_idx_t>& current_idx);
@@ -26,42 +56,35 @@ class FixedNormIncrementer {
         std::vector<bool> m_combination;
 };
 
-/// @brief Increment the multi index through all indices that have a L-infinity norm upper bound
-class ExhaustiveIncrementer {
+/// @brief Increment the multi index through all indices that are less than a multi-index bound (keeps track of the wrapped index)
+class BoundedExhaustiveIncrementerWrap {
     public:
-        ExhaustiveIncrementer(std::size_t sz, bry_idx_t index_constraint, bool left, std::vector<bry_idx_t>& initial_idx);
-        BRY_INL bry_idx_t indexConstraint() const;
+        BoundedExhaustiveIncrementerWrap(std::vector<bry_idx_t>& initial_idx, bool first, 
+            const std::vector<bry_idx_t>& index_bounds, bry_idx_t index_constraint);
+        BRY_INL const std::vector<bry_idx_t>& indexConstraint() const;
         BRY_INL bool increment(std::vector<bry_idx_t>& current_idx);
         BRY_INL bool decrement(std::vector<bry_idx_t>& current_idx);
+
+        /// @brief This incrementer keeps track of the wrapped index (equivalent flattened 1D index) given the index constraint
+        /// @return Wrapped index
+        BRY_INL bry_idx_t wrappedIdx() const;
     private:
+        std::vector<bry_idx_t> m_index_bounds;
         bry_idx_t m_linfty_norm;
+        bry_idx_t m_wrapped_idx;
 };
 
-/// @brief Increment the multi index through all indices that have a L-infinity norm upper bound
-class BoundedExhaustiveIncrementer {
-    public:
-        BoundedExhaustiveIncrementer(std::size_t sz, const std::vector<bry_idx_t>& index_bounds, bool left);
-        BRY_INL bry_idx_t indexConstraint() const;
-        BRY_INL bool increment(std::vector<bry_idx_t>& current_idx);
-        BRY_INL bool decrement(std::vector<bry_idx_t>& current_idx);
-    private:
-        bry_idx_t m_linfty_norm;
-};
 
 template <class INCREMENTER = ExhaustiveIncrementer>
 class MultiIndex {
     public:
-        /// @brief Automatic incrementer constructor (Supported for FixedNormIncrementer and ExhaustiveIncrementer)
-        /// @param sz Size of the index (number of individual indices)
-        /// @param index_constraint Norm constraint passed to the incrementer
-        /// @param left Constructed at the first combination if true, last combination otherwise
-        /// combination, i.e. (0, ..., 0, l1_norm)
-        MultiIndex(std::size_t sz, bry_idx_t index_constraint, bool left = true);
+        template <typename ... ARGS>
+        MultiIndex(bool first, ARGS&&... args);
 
         /// @brief Generic incrementer constructor (Supported for any custom incrementer)
         /// @param incrementer Incrementer object 
         /// @param initial_idx Initial index
-        MultiIndex(INCREMENTER&& incrementer, std::vector<bry_idx_t>&& initial_idx);
+        //MultiIndex(INCREMENTER&& incrementer, std::vector<bry_idx_t>&& initial_idx, bool left = true);
 
         /// @brief Number of unary indices
         BRY_INL std::size_t size() const;
@@ -82,11 +105,11 @@ class MultiIndex {
         /// @brief Postfix decrement. Moves the multi index backwards (left) by one step
         BRY_INL MultiIndex operator--(int);
 
-        /// @brief Check if the leftmost permutation is reached
-        BRY_INL bool left() const;
+        /// @brief Check if the first permutation is reached
+        BRY_INL bool first() const;
 
-        /// @brief Check if the rightmost permutation is reached
-        BRY_INL bool right() const;
+        /// @brief Check if the last permutation is reached
+        BRY_INL bool last() const;
 
         /// @brief Subscript operator for accessing a unary index
         /// @param d Subscript of the individual unary index
@@ -98,11 +121,23 @@ class MultiIndex {
         /// @brief Vector iterator access of the unary indices
         BRY_INL std::vector<bry_idx_t>::const_iterator end() const;
 
+        /// @brief Access the multi index as a vector
+        BRY_INL const std::vector<bry_idx_t>& getIdxVector() const;
     private:
         std::vector<bry_idx_t> m_idx;
         INCREMENTER m_incrementer;
-        bool m_left, m_right;
+        bool m_first, m_last;
 };
+
+/* Convenience methods for creating MultiIndices easily (put in the for loop, don't pollute the stack!) */
+BRY_INL static MultiIndex<ExhaustiveIncrementer> mIdx(std::size_t sz, bry_idx_t index_constraint);
+BRY_INL static MultiIndex<ExhaustiveIncrementer> rmIdx(std::size_t sz, bry_idx_t index_constraint);
+BRY_INL static MultiIndex<ExhaustiveIncrementerWrap> mIdxW(std::size_t sz, bry_idx_t index_constraint);
+BRY_INL static MultiIndex<ExhaustiveIncrementerWrap> rmIdxW(std::size_t sz, bry_idx_t index_constraint);
+BRY_INL static MultiIndex<FixedNormIncrementer> mIdxFN(std::size_t sz, bry_idx_t index_constraint);
+BRY_INL static MultiIndex<FixedNormIncrementer> rmIdxFN(std::size_t sz, bry_idx_t index_constraint);
+BRY_INL static MultiIndex<BoundedExhaustiveIncrementerWrap> mIdxBEW(const std::vector<bry_idx_t>& index_bounds, bry_idx_t index_constraint);
+BRY_INL static MultiIndex<BoundedExhaustiveIncrementerWrap> rmIdxBEW(const std::vector<bry_idx_t>& index_bounds, bry_idx_t index_constraint);
 
 }
 

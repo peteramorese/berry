@@ -80,13 +80,22 @@ int main() {
 
     //std::cout << prod << std::endl;
     //BoundedExhaustiveIncrementer incrementer(std::vector<bry_idx_t>{2, 1, 4}, 4);
-    for (auto midx = mIdxBEW(std::vector<bry_idx_t>{2, 1, 4}, 4); !midx.last(); ++midx) {
+    //auto test = mIdxBEW(std::vector<bry_idx_t>{2, 1, 4}, 4);
+    //test.last();
+    //++test;
+    //DEBUG("made it herer");
+    for (auto midx = rmIdxBEW(std::vector<bry_idx_t>{2, 1, 4}, 4); !midx.first(); --midx) {
         DEBUG("Midx: " << midx << " wrapped idx: " << midx.incrementer().wrappedIdx());
     }
 
     uint32_t i = 0;
-    for (auto midx = mIdxW(3, 4); !midx.last(); ++midx) {
-        DEBUG("Exhaustive Midx: " << midx << " wrapped idx: " << i++ << " comp to: " << midx.incrementer().wrappedIdx());
+    std::array<bry_idx_t, 3> arr;
+    MultiIndex<ExhaustiveIncrementerWrap> test(arr.data(), arr.size(), true, 4);
+    for (; !test.last(); ++test) {
+        DEBUG("Exhaustive Midx: " << test << " wrapped idx: " << i++ << " comp to: " << test.incrementer().wrappedIdx());
     }
+    //for (auto midx = rmIdxW(3, 4); !midx.first(); --midx) {
+    //    DEBUG("Exhaustive Midx: " << midx << " wrapped idx: " << i++ << " comp to: " << midx.incrementer().wrappedIdx());
+    //}
 
 }

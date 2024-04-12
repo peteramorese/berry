@@ -103,8 +103,8 @@ class MultiIndex {
         BRY_INL std::size_t size() const;
 
         /// @brief Max norm constraint passed to incrementer
-        BRY_INL INCREMENTER& incrementer();
-        BRY_INL const INCREMENTER& incrementer() const;
+        BRY_INL INCREMENTER& inc();
+        BRY_INL const INCREMENTER& inc() const;
 
         /// @brief Prefix increment. Moves the multi index along (right) by one step
         BRY_INL MultiIndex& operator++();
@@ -142,7 +142,7 @@ class MultiIndex {
         bool m_external_arr;
 };
 
-/* Convenience methods for creating MultiIndices easily (put in the for loop, don't pollute the stack!) */
+/* Convenience methods for creating MultiIndices easily */
 BRY_INL static MultiIndex<ExhaustiveIncrementer> mIdx(std::size_t sz, bry_idx_t index_constraint);
 BRY_INL static MultiIndex<ExhaustiveIncrementer> rmIdx(std::size_t sz, bry_idx_t index_constraint);
 BRY_INL static MultiIndex<ExhaustiveIncrementerWrap> mIdxW(std::size_t sz, bry_idx_t index_constraint);

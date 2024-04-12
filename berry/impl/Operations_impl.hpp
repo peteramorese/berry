@@ -18,18 +18,19 @@ std::size_t BRY::binom(std::size_t n, std::size_t k) {
     ASSERT(k <= n, "`k` must be <= `n`");
 #endif
 
-    std::size_t val(1.0);
+    std::size_t val(1);
     for (std::size_t i = 1; i < k + 1; ++i) {
-        val *= (n + 1 - i) / i;
+        val *= (n + 1 - i);
+        val /= i;
     }
     return val;
 }
 
 std::vector<std::size_t> BRY::pascalRow(std::size_t n) {
     std::vector<std::size_t> vals(n + 1);
-    vals.front() = 1.0;
+    vals.front() = 1;
     for (std::size_t i = 1; i < n + 1; ++i) {
-        vals[i] = vals[i - 1] * (n + 1 - i) / i;
+        vals[i] = (vals[i - 1] * (n + 1 - i)) / i;
     }
     return vals;
 }
@@ -51,5 +52,5 @@ std::size_t BRY::multinom(std::size_t n, const ITERABLE_T& multi_k) {
 }
 
 std::size_t BRY::multinom(const MultiIndex<>& idx) {
-    return multinom(idx.incrementer().indexConstraint(), idx);
+    return multinom(idx.inc().indexConstraint(), idx);
 }

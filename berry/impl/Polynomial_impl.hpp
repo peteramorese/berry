@@ -103,9 +103,14 @@ std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis
         first = false;
 
         os << BRY_LOG_BYELLOW(coeff);
-        for (std::size_t dim = 0; dim < DIM; ++dim) {
-            if (idx_arr[dim] > 0)
-                os << BRY_LOG_WHITE("(x" << dim << "^") << BRY_LOG_BGREEN(idx_arr[dim]) << BRY_LOG_WHITE(")");
+        if constexpr (DIM != 1) {
+            for (std::size_t dim = 0; dim < DIM; ++dim) {
+                if (idx_arr[dim] > 0)
+                    os << BRY_LOG_WHITE("(x" << dim << "^") << BRY_LOG_BGREEN(idx_arr[dim]) << BRY_LOG_WHITE(")");
+            }
+        } else {
+            if (idx_arr[0] > 0)
+                os << BRY_LOG_WHITE("x^") << BRY_LOG_BGREEN(idx_arr[0]);
         }
         iterate();
     }

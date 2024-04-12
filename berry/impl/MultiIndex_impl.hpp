@@ -241,7 +241,9 @@ BRY::MultiIndex<INCREMENTER>::MultiIndex(bry_idx_t* array, std::size_t sz, bool 
     , m_first(first)
     , m_last(!first)
     , m_external_arr(true)
-{}
+{
+    ASSERT(sz, "Size must be geq 0");
+}
 
 template <class INCREMENTER>
 BRY::MultiIndex<INCREMENTER>::~MultiIndex() {
@@ -255,12 +257,12 @@ std::size_t BRY::MultiIndex<INCREMENTER>::size() const {
 }
 
 template <class INCREMENTER>
-INCREMENTER& BRY::MultiIndex<INCREMENTER>::incrementer() {
+INCREMENTER& BRY::MultiIndex<INCREMENTER>::inc() {
     return m_incrementer;
 }
 
 template <class INCREMENTER>
-const INCREMENTER& BRY::MultiIndex<INCREMENTER>::incrementer() const {
+const INCREMENTER& BRY::MultiIndex<INCREMENTER>::inc() const {
     return m_incrementer;
 }
 
@@ -323,7 +325,7 @@ const BRY::bry_idx_t* BRY::MultiIndex<INCREMENTER>::begin() const {
 
 template <class INCREMENTER>
 const BRY::bry_idx_t* BRY::MultiIndex<INCREMENTER>::end() const {
-    return m_idx + m_sz - 1;
+    return m_idx + m_sz;
 }
 
 template <class INCREMENTER>

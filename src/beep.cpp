@@ -8,8 +8,8 @@
 using namespace BRY;
 
 int main() {
-    //Polynomial<3> p1(3);
-    Polynomial<2> p(2);
+    constexpr std::size_t DIM = 2;
+    Polynomial<DIM> p(2);
 
     p.coeff(0, 0) = 1;
     p.coeff(1, 0) = 2;
@@ -21,20 +21,30 @@ int main() {
     p.coeff(1, 2) = 8;
     p.coeff(2, 2) = 9;
 
+    //constexpr std::size_t DIM = 1;
+    //Polynomial<DIM> p(3);
+
+    //p.coeff(0) = 1;
+    //p.coeff(1) = 2;
+    //p.coeff(2) = 3;
+    //p.coeff(3) = 4;
+
     DEBUG(p);
     DEBUG(p.nMonomials());
     DEBUG(p.degree());
 
 
-    Eigen::MatrixXd tmat = BernsteinBasis<2>::getTransformationMatrix(p.degree());
+    Eigen::MatrixXd tmat = BernsteinBasis<DIM>::getTransformationMatrix(p.degree());
     NEW_LINE;
     INFO("T");
     std::cout << tmat << std::endl;
     NEW_LINE;
     INFO("T^-1");
-    std::cout << tmat.inverse().cwiseAbs() << std::endl;
+    //std::cout << tmat.inverse().cwiseAbs() << std::endl;
+    std::cout << tmat.inverse() << std::endl;
     NEW_LINE;
     INFO("Backwards");
-    std::cout << BernsteinBasis<2>::getInverseTransformationMatrix(p.degree()).cwiseAbs() << std::endl;
+    //std::cout << BernsteinBasis<DIM>::getInverseTransformationMatrix(p.degree()).cwiseAbs() << std::endl;
+    std::cout << BernsteinBasis<DIM>::getInverseTransformationMatrix(p.degree()) << std::endl;
 
 }

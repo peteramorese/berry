@@ -29,12 +29,13 @@ Eigen::MatrixXd BRY::BernsteinBasis<DIM>::getInverseTransformationMatrix(bry_deg
     auto makeCoeff = [&] (const auto& i_midx, const auto& l_midx) -> bry_float_t {
         bry_float_t transformation_coeff = 1.0;
 
+        bool neg = false;
         for (bry_idx_t j = 0; j < DIM; ++j) {
-            transformation_coeff *= static_cast<bry_float_t>(binom(degree - l_midx[j], degree - i_midx[j]));
+            transformation_coeff *= static_cast<bry_float_t>(binom(degree - l_midx[j], degree - i_midx[j]) * binom(degree, l_midx[j]));
+            if ((i_midx[j] - l_midx[j]) % 2 != 0) 
+                neg = !neg;
         }
 
-        // If the sum of all the i indices is even, the coefficient is positive, else negative
-        bool neg = std::accumulate(i_midx.begin(), i_midx.end(), 0) % 2;
         return neg ? -transformation_coeff : transformation_coeff;
     };
     return makeBigMatrix(degree, degree, makeCoeff);

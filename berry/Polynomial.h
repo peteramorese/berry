@@ -99,8 +99,18 @@ class Polynomial {
         // Operators
 
         /* TODO */
+        /// @brief Evaluation
+        /// @tparam ...FLTS 
+        /// @param ...x 
+        /// @return 
         template <typename ... FLTS>
         bry_float_t operator()(FLTS ... x) const;
+
+        /// @brief Composition with another polynomial
+        /// @tparam ...FLTS 
+        /// @param ...x 
+        /// @return 
+        Polynomial<Basis::Power> operator()(const Polynomial<Basis::Power>& p) const;
 
         /// @brief Get the Number of monomials
         bry_deg_t nMonomials() const;

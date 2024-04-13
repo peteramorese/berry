@@ -1,16 +1,16 @@
 #pragma once
 
-#include "BernsteinBasis.h"
+#include "BernsteinBasisTransform.h"
 #include "MultiIndex.h"
 #include "Operations.h"
 
 //template <std::size_t DIM>
-//Polynomial<DIM, BRY::Basis::Bernstein> BRY::BernsteinBasis<DIM>::to(const Polynomial<DIM, BRY::Basis::Power>& p, BRY::bry_deg_t degree_increase = 0) {
+//Polynomial<DIM, BRY::Basis::Bernstein> BRY::BernsteinBasisTransform<DIM>::to(const Polynomial<DIM, BRY::Basis::Power>& p, BRY::bry_deg_t degree_increase = 0) {
 //    
 //}
 
 template <std::size_t DIM>
-Eigen::MatrixXd BRY::BernsteinBasis<DIM>::getTransformationMatrix(bry_deg_t degree, bry_deg_t degree_increase) {
+Eigen::MatrixXd BRY::BernsteinBasisTransform<DIM>::getTfMatrix(bry_deg_t degree, bry_deg_t degree_increase) {
 
     // TODO
     ASSERT(degree_increase == 0, "Degree increase not yet implemented");
@@ -29,7 +29,7 @@ Eigen::MatrixXd BRY::BernsteinBasis<DIM>::getTransformationMatrix(bry_deg_t degr
 }
 
 template <std::size_t DIM>
-Eigen::MatrixXd BRY::BernsteinBasis<DIM>::getInverseTransformationMatrix(bry_deg_t degree) {
+Eigen::MatrixXd BRY::BernsteinBasisTransform<DIM>::getInvTfMatrix(bry_deg_t degree) {
     auto makeCoeff = [&] (const auto& i_midx, const auto& l_midx) -> bry_float_t {
         bry_float_t transformation_coeff = 1.0;
 
@@ -47,7 +47,7 @@ Eigen::MatrixXd BRY::BernsteinBasis<DIM>::getInverseTransformationMatrix(bry_deg
 
 template <std::size_t DIM>
 template <typename COEFF_LAM>
-Eigen::MatrixXd BRY::BernsteinBasis<DIM>::makeBigMatrix(bry_deg_t to_degree, bry_deg_t from_degree, COEFF_LAM makeCoeff) {
+Eigen::MatrixXd BRY::BernsteinBasisTransform<DIM>::makeBigMatrix(bry_deg_t to_degree, bry_deg_t from_degree, COEFF_LAM makeCoeff) {
 
     // TODO
     ASSERT(to_degree == from_degree, "Degree increase not yet implemented");

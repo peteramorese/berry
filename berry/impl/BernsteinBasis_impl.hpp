@@ -11,6 +11,10 @@
 
 template <std::size_t DIM>
 Eigen::MatrixXd BRY::BernsteinBasis<DIM>::getTransformationMatrix(bry_deg_t degree, bry_deg_t degree_increase) {
+
+    // TODO
+    ASSERT(degree_increase == 0, "Degree increase not yet implemented");
+
     bry_deg_t to_degree = degree + degree_increase;
 
     auto makeCoeff = [&] (const auto& i_midx, const auto& l_midx) -> bry_float_t {
@@ -44,6 +48,10 @@ Eigen::MatrixXd BRY::BernsteinBasis<DIM>::getInverseTransformationMatrix(bry_deg
 template <std::size_t DIM>
 template <typename COEFF_LAM>
 Eigen::MatrixXd BRY::BernsteinBasis<DIM>::makeBigMatrix(bry_deg_t to_degree, bry_deg_t from_degree, COEFF_LAM makeCoeff) {
+
+    // TODO
+    ASSERT(to_degree == from_degree, "Degree increase not yet implemented");
+
     Eigen::MatrixXd matrix(pow(to_degree + 1, DIM), pow(from_degree + 1, DIM));
     matrix.setZero();
 

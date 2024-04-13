@@ -34,17 +34,40 @@ int main() {
     DEBUG(p.degree());
 
 
-    Eigen::MatrixXd tmat = BernsteinBasis<DIM>::getTransformationMatrix(p.degree());
-    NEW_LINE;
+    bry_deg_t test_degree = 2;
+    INFO("Before tmat");
+    Eigen::MatrixXd tmat = BernsteinBasis<DIM>::getTransformationMatrix(test_degree, 0);
+    INFO("Done!");
     INFO("T");
     std::cout << tmat << std::endl;
     NEW_LINE;
-    INFO("T^-1");
-    //std::cout << tmat.inverse().cwiseAbs() << std::endl;
-    std::cout << tmat.inverse() << std::endl;
+
+    //INFO("Before inverse");
+    //Eigen::MatrixXd tmat_inv = tmat.inverse();
+    //INFO("Done!");
+
+    INFO("Before reverse");
+    Eigen::MatrixXd tmat_rev = BernsteinBasis<DIM>::getInverseTransformationMatrix(test_degree);
+    INFO("Done!");
+
+    INFO("Before mult");
+    Eigen::MatrixXd tmat_mult = tmat_rev * tmat;
+    INFO("Done!");
+
+    INFO("I");
+    std::cout << tmat_mult << std::endl;
     NEW_LINE;
-    INFO("Backwards");
-    //std::cout << BernsteinBasis<DIM>::getInverseTransformationMatrix(p.degree()).cwiseAbs() << std::endl;
-    std::cout << BernsteinBasis<DIM>::getInverseTransformationMatrix(p.degree()) << std::endl;
+
+    //NEW_LINE;
+    //INFO("T");
+    //std::cout << tmat << std::endl;
+    //NEW_LINE;
+    //INFO("T^-1");
+    ////std::cout << tmat.inverse().cwiseAbs() << std::endl;
+    //std::cout << tmat.inverse() << std::endl;
+    //NEW_LINE;
+    //INFO("Backwards");
+    ////std::cout << BernsteinBasis<DIM>::getInverseTransformationMatrix(p.degree()).cwiseAbs() << std::endl;
+    //std::cout << BernsteinBasis<DIM>::getInverseTransformationMatrix(p.degree()) << std::endl;
 
 }

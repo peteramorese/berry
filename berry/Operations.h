@@ -24,6 +24,12 @@ static BRY_INL std::size_t multinom(std::size_t n, const ITERABLE_T& multi_k);
 
 static BRY_INL std::size_t multinom(const MultiIndex<>& idx);
 
+/// @brief Exponent for integers and (smallish) positive exponents
+/// @param x Base
+/// @param n Exponent (positive)
+/// @return Integer x^n
+static BRY_INL bry_deg_t pow(bry_deg_t x, std::size_t n);
+
 }
 
 #include "impl/Operations_impl.hpp"

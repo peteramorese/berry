@@ -19,7 +19,9 @@ class BernsteinBasis {
         /// @return Polynomial in the Bernstein basis
         Polynomial<DIM, Basis::Bernstein> to(const Polynomial<DIM, Basis::Power>& p, bry_deg_t degree_increase = 0);
 
-        static Eigen::MatrixXd getTransformationMatrix(const Polynomial<DIM, Basis::Power>& p, bry_deg_t degree_increase = 0);
+        static Eigen::MatrixXd getTransformationMatrix(bry_deg_t degree, bry_deg_t degree_increase = 0);
+
+        static Eigen::MatrixXd getInverseTransformationMatrix(bry_deg_t degree);
         
         /* TODO */
         //Polynomial<DIM, Basis::Power> from(const Polynomial<DIM, Basis::Bernstein>& p);
@@ -29,6 +31,8 @@ class BernsteinBasis {
     private:
         Eigen::Tensor<bry_float_t, DIM> getDenominatorTensor();
 
+        template <typename COEFF_LAM>
+        static Eigen::MatrixXd makeBigMatrix(bry_deg_t to_degree, bry_deg_t from_degree, COEFF_LAM makeCoeff);
     private:
         bry_float_t m_min_coeff;
 };

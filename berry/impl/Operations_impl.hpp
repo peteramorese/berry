@@ -54,3 +54,12 @@ std::size_t BRY::multinom(std::size_t n, const ITERABLE_T& multi_k) {
 std::size_t BRY::multinom(const MultiIndex<>& idx) {
     return multinom(idx.inc().indexConstraint(), idx);
 }
+
+BRY::bry_deg_t BRY::pow(bry_deg_t x, std::size_t n) {
+    if (n == 0)
+        return 1;
+
+    for (std::size_t i = 1; i < n; ++i)
+        x *= x;
+    return x;
+}

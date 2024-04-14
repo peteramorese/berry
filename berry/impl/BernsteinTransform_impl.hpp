@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BernsteinBasisTransform.h"
+#include "BernsteinTransform.h"
 #include "MultiIndex.h"
 #include "Operations.h"
 

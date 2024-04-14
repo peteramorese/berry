@@ -46,4 +46,4 @@ class BernsteinBasisTransform {
 
 }
 
-#include "impl/BernsteinBasis_impl.hpp"
+#include "impl/BernsteinTransform_impl.hpp"

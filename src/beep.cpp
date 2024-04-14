@@ -1,7 +1,7 @@
 #include "Polynomial.h"
 #include "MultiIndex.h"
 #include "Operations.h"
-#include "BernsteinBasis.h"
+#include "BernsteinTransform.h"
 
 #include <Eigen/Dense>
 
@@ -36,7 +36,7 @@ int main() {
 
     bry_deg_t test_degree = 2;
     INFO("Before tmat");
-    Eigen::MatrixXd tmat = BernsteinBasis<DIM>::getTransformationMatrix(test_degree, 0);
+    Eigen::MatrixXd tmat = BernsteinBasisTransform<DIM>::getTfMatrix(test_degree, 0);
     INFO("Done!");
     INFO("T");
     std::cout << tmat << std::endl;
@@ -47,7 +47,7 @@ int main() {
     //INFO("Done!");
 
     INFO("Before reverse");
-    Eigen::MatrixXd tmat_rev = BernsteinBasis<DIM>::getInverseTransformationMatrix(test_degree);
+    Eigen::MatrixXd tmat_rev = BernsteinBasisTransform<DIM>::getInvTfMatrix(test_degree);
     INFO("Done!");
 
     INFO("Before mult");

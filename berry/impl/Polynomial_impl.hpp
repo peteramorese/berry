@@ -183,7 +183,7 @@ BRY::Polynomial<DIM, BRY::Basis::Power> operator*(const BRY::Polynomial<DIM, BRY
 template <std::size_t DIM>
 BRY::Polynomial<DIM, BRY::Basis::Power> operator*(const BRY::Polynomial<DIM, BRY::Basis::Power>& p_1, const BRY::Polynomial<DIM, BRY::Basis::Power>& p_2) {
 
-    BRY::bry_deg_t desired_size = p_1.degree() + p_2.degree() + 2;
+    BRY::bry_deg_t desired_size = p_1.degree() + p_2.degree() + 1;
 
     Eigen::Tensor<BRY::bry_float_t, DIM> p_1_tensor_rszd = _BRY::expandToMatchSize<DIM>(p_1.tensor(), desired_size);
     Eigen::Tensor<BRY::bry_float_t, DIM> p_2_tensor_rszd = _BRY::expandToMatchSize<DIM>(p_2.tensor(), desired_size);
@@ -203,7 +203,7 @@ BRY::Polynomial<DIM, BRY::Basis::Power> operator*(const BRY::Polynomial<DIM, BRY
 template <std::size_t DIM>
 BRY::Polynomial<DIM, BRY::Basis::Power> operator^(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, BRY::bry_deg_t deg) {
 
-    BRY::bry_deg_t desired_size = deg * (p.degree() + 1);
+    BRY::bry_deg_t desired_size = deg * (p.degree()) + 1;
 
     Eigen::Tensor<BRY::bry_float_t, DIM> p_tensor_rszd = _BRY::expandToMatchSize<DIM>(p.tensor(), desired_size);
 

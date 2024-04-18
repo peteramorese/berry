@@ -201,9 +201,9 @@ BRY::Polynomial<DIM, BRY::Basis::Power> operator*(const BRY::Polynomial<DIM, BRY
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM, BRY::Basis::Power> operator^(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, BRY::bry_deg_t deg) {
+BRY::Polynomial<DIM, BRY::Basis::Power> operator^(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, BRY::bry_deg_t exp) {
 
-    BRY::bry_deg_t desired_size = deg * (p.degree()) + 1;
+    BRY::bry_deg_t desired_size = exp * p.degree() + 1;
 
     Eigen::Tensor<BRY::bry_float_t, DIM> p_tensor_rszd = _BRY::expandToMatchSize<DIM>(p.tensor(), desired_size);
 
@@ -212,7 +212,7 @@ BRY::Polynomial<DIM, BRY::Basis::Power> operator^(const BRY::Polynomial<DIM, BRY
         dimensions[i] = i;
 
     Eigen::Tensor<BRY::bry_complex_t, DIM> tensor_fft = p_tensor_rszd.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(dimensions);
-    Eigen::Tensor<BRY::bry_complex_t, DIM> exp_fft = tensor_fft.pow(static_cast<BRY::bry_float_t>(deg));
+    Eigen::Tensor<BRY::bry_complex_t, DIM> exp_fft = tensor_fft.pow(static_cast<BRY::bry_float_t>(exp));
 
     Eigen::Tensor<BRY::bry_float_t, DIM> result = exp_fft .template fft<Eigen::RealPart, Eigen::FFT_REVERSE>(dimensions);
     return BRY::Polynomial<DIM, BRY::Basis::Power>(std::move(result));

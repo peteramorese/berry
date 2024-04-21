@@ -94,4 +94,8 @@ int main() {
 
     //std::cout<< matrix << std::endl;
 
+    Eigen::MatrixXd m(3,3);
+    m.col(0) = Eigen::VectorXd::Ones(3);
+    std::cout << m << std::endl;
+
 }

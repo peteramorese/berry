@@ -217,3 +217,20 @@ BRY::Polynomial<DIM, BRY::Basis::Power> operator^(const BRY::Polynomial<DIM, BRY
     Eigen::Tensor<BRY::bry_float_t, DIM> result = exp_fft .template fft<Eigen::RealPart, Eigen::FFT_REVERSE>(dimensions);
     return BRY::Polynomial<DIM, BRY::Basis::Power>(std::move(result));
 }
+
+template <std::size_t DIM>
+BRY::Polynomial<DIM, BRY::Basis::Power> BRY::transform(const Polynomial<DIM, Basis::Power>& p, const Eigen::MatrixXd& transform_matrix) {
+    bry_deg_t new_size = static_cast<bry_deg_t>(std::pow(transform_matrix.rows(), 1.0 / static_cast<bry_float_t>(DIM)));
+    if (pow(new_size, DIM) < transform_matrix.rows())
+        new_size += 1;
+
+    Eigen::Tensor<bry_float_t, DIM> tensor(makeUniformArray<bry_deg_t, DIM>(new_size));
+    tensor.setZero();
+
+    Eigen::Map<const Eigen::VectorXd> p_vec(p.tensor().data(), p.nMonomials());
+    Eigen::Map<Eigen::VectorXd> p_vec_tf(tensor.data(), transform_matrix.rows());
+
+    p_vec_tf = transform_matrix * p_vec;
+
+    return BRY::Polynomial<DIM, BRY::Basis::Power>(std::move(tensor));
+}

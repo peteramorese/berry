@@ -5,6 +5,5 @@ foreach(EXEC_FILE ${BRY_EXECUTABLES})
     add_executable(${EXEC_NAME} ${EXEC_FILE})
     target_include_directories(${EXEC_NAME} PRIVATE
         ${BRY_INCLUDE_DIRS} 
-        ${BRY_DEPENDENCY_INCLUDE_DIRS}
     )
 endforeach()

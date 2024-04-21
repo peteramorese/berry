@@ -118,6 +118,9 @@ class Polynomial {
 
 };
 
+template <std::size_t DIM>
+BRY::Polynomial<DIM, BRY::Basis::Power> transform(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, const Eigen::MatrixXd& transform_matrix);
+
 }
 
 #include "impl/Polynomial_impl.hpp"

@@ -71,12 +71,8 @@ Eigen::MatrixXd BRY::BernsteinBasisTransform<DIM>::makeBigMatrix(bry_deg_t to_de
         // Create the column multi index
         MultiIndex<BoundedExhaustiveIncrementerWrap> l_midx(l_idx.data(), DIM, true, index_bounds, from_degree + 1);
         for (; !l_midx.last(); ++l_midx) {
-
-
             matrix(i_midx.inc().wrappedIdx(), l_midx.inc().wrappedIdx()) = makeCoeff(i_midx, l_midx);
         }
     }
     return matrix;
 }
-
-//Eigen::Tensor<bry_float_t, DIM> getDenominatorTensor()

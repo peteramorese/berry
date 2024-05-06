@@ -61,6 +61,9 @@ BRY::Polynomial<DIM, BRY::Basis::Power> operator^(const BRY::Polynomial<DIM, BRY
 template <std::size_t DIM>
 std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis::Power>& p);
 
+template <std::size_t DIM>
+std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis::Bernstein>& p);
+
 namespace BRY {
 
 template <std::size_t DIM, Basis BASIS = Basis::Power>
@@ -77,6 +80,10 @@ class Polynomial {
         /// @brief Construct polynomial moving a tensor
         /// @param tensor Tensor of coefficients
         Polynomial(Eigen::Tensor<bry_float_t, DIM>&& tensor);
+
+        /// @brief Construct polynomial given a multiindex-organized vector of coefficients
+        /// @param tensor Tensor of coefficients 
+        Polynomial(const Eigen::VectorXd& vector);
 
         /// @brief Get the degree
         /// @return Degree

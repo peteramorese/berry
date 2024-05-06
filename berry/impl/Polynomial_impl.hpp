@@ -5,6 +5,7 @@
 #include "Operations.h"
 
 #include <cmath>
+#include <stdexcept>
 
 namespace _BRY {
     template <std::size_t DIM>
@@ -42,6 +43,25 @@ BRY::Polynomial<DIM, BASIS>::Polynomial(Eigen::Tensor<bry_float_t, DIM>&& tensor
 {}
 
 template <std::size_t DIM, BRY::Basis BASIS>
+BRY::Polynomial<DIM, BASIS>::Polynomial(const Eigen::VectorXd& vector)
+{
+    bry_deg_t new_size = static_cast<bry_deg_t>(std::pow(vector.size(), 1.0 / static_cast<bry_float_t>(DIM)));
+    if (pow(new_size, DIM) < vector.size())
+        new_size += 1;
+
+    if (pow(new_size, DIM) != vector.size()) {
+        ERROR("Input vector dimension mismatch");
+        throw std::invalid_argument("Input vector dimension mismatch");
+    }
+
+    m_tensor = Eigen::Tensor<bry_float_t, DIM>(makeUniformArray<bry_deg_t, DIM>(new_size));
+    Eigen::Tensor<bry_float_t, DIM> tensor(makeUniformArray<bry_deg_t, DIM>(new_size));
+
+    Eigen::Map<Eigen::VectorXd> p_vec(tensor.data(), vector.size());
+    p_vec = vector;
+}
+
+template <std::size_t DIM, BRY::Basis BASIS>
 BRY::bry_deg_t BRY::Polynomial<DIM, BASIS>::degree() const {
     return m_tensor.dimension(0) - 1;
 }
@@ -72,7 +92,6 @@ const BRY::bry_float_t& BRY::Polynomial<DIM, BASIS>::coeff(DEGS ... exponents) c
 //
 //    //for (bry_float_t coeff)
 //}
-
 
 template <std::size_t DIM>
 std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis::Power>& p) {
@@ -114,6 +133,12 @@ std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis
         }
         iterate();
     }
+    return os;
+}
+
+template <std::size_t DIM>
+std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis::Bernstein>& p) {
+    os << "TODO";
     return os;
 }
 

@@ -55,9 +55,7 @@ BRY::Polynomial<DIM, BASIS>::Polynomial(const Eigen::VectorXd& vector)
     }
 
     m_tensor = Eigen::Tensor<bry_float_t, DIM>(makeUniformArray<bry_deg_t, DIM>(new_size));
-    Eigen::Tensor<bry_float_t, DIM> tensor(makeUniformArray<bry_deg_t, DIM>(new_size));
-
-    Eigen::Map<Eigen::VectorXd> p_vec(tensor.data(), vector.size());
+    Eigen::Map<Eigen::VectorXd> p_vec(m_tensor.data(), vector.size());
     p_vec = vector;
 }
 
@@ -243,18 +241,23 @@ BRY::Polynomial<DIM, BRY::Basis::Power> operator^(const BRY::Polynomial<DIM, BRY
     return BRY::Polynomial<DIM, BRY::Basis::Power>(std::move(result));
 }
 
-template <std::size_t DIM>
-BRY::Polynomial<DIM, BRY::Basis::Power> BRY::transform(const Polynomial<DIM, Basis::Power>& p, const Eigen::MatrixXd& transform_matrix) {
+template <std::size_t DIM, BRY::Basis BASIS>
+BRY::Polynomial<DIM, BRY::Basis::Power> BRY::transform(const Polynomial<DIM, BASIS>& p, const Eigen::MatrixXd& transform_matrix) {
     bry_deg_t new_size = static_cast<bry_deg_t>(std::pow(transform_matrix.rows(), 1.0 / static_cast<bry_float_t>(DIM)));
     if (pow(new_size, DIM) < transform_matrix.rows())
         new_size += 1;
 
     Eigen::Tensor<bry_float_t, DIM> tensor(makeUniformArray<bry_deg_t, DIM>(new_size));
     tensor.setZero();
+    //DEBUG("input p tensor: \n" << p.tensor());
+    //DEBUG("tensor size: " << p.tensor().size());
+    //DEBUG("n_monoms: " << p.nMonomials());
 
     Eigen::Map<const Eigen::VectorXd> p_vec(p.tensor().data(), p.nMonomials());
     Eigen::Map<Eigen::VectorXd> p_vec_tf(tensor.data(), transform_matrix.rows());
 
+    //DEBUG("p_vec: \n" << p_vec);
+    //DEBUG("tfmat: \n" << transform_matrix);
     p_vec_tf = transform_matrix * p_vec;
 
     return BRY::Polynomial<DIM, BRY::Basis::Power>(std::move(tensor));

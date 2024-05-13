@@ -30,12 +30,12 @@ class BernsteinBasisTransform {
         /// @param degree Degree of the power basis polynomial
         /// @param degree_increase Elevate the degree of the transformation
         /// @return Transformation matrix of elevated degree (`degree + degree_increase`)
-        static Eigen::MatrixXd getTfMatrix(bry_deg_t degree, bry_deg_t degree_increase = 0);
+        static Eigen::MatrixXd pwrToBernMatrix(bry_deg_t degree, bry_deg_t degree_increase = 0);
 
         /// @brief Compute the inverse transformation matrix for Bernstein basis to power basis
         /// @param degree Degree of the Bernstein basis polynomial
         /// @return Transformation matrix
-        static Eigen::MatrixXd getInvTfMatrix(bry_deg_t degree);
+        static Eigen::MatrixXd bernToPwrMatrix(bry_deg_t degree);
     private:
         template <typename COEFF_LAM>
         static Eigen::MatrixXd makeBigMatrix(bry_deg_t to_degree, bry_deg_t from_degree, COEFF_LAM makeCoeff);

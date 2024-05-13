@@ -10,7 +10,7 @@
 //}
 
 template <std::size_t DIM>
-Eigen::MatrixXd BRY::BernsteinBasisTransform<DIM>::getTfMatrix(bry_deg_t degree, bry_deg_t degree_increase) {
+Eigen::MatrixXd BRY::BernsteinBasisTransform<DIM>::pwrToBernMatrix(bry_deg_t degree, bry_deg_t degree_increase) {
 
     // TODO
     ASSERT(degree_increase == 0, "Degree increase not yet implemented");
@@ -29,7 +29,7 @@ Eigen::MatrixXd BRY::BernsteinBasisTransform<DIM>::getTfMatrix(bry_deg_t degree,
 }
 
 template <std::size_t DIM>
-Eigen::MatrixXd BRY::BernsteinBasisTransform<DIM>::getInvTfMatrix(bry_deg_t degree) {
+Eigen::MatrixXd BRY::BernsteinBasisTransform<DIM>::bernToPwrMatrix(bry_deg_t degree) {
     auto makeCoeff = [&] (const auto& i_midx, const auto& l_midx) -> bry_float_t {
         bry_float_t transformation_coeff = 1.0;
 

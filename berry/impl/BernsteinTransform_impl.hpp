@@ -11,12 +11,7 @@
 
 template <std::size_t DIM>
 Eigen::MatrixXd BRY::BernsteinBasisTransform<DIM>::pwrToBernMatrix(bry_deg_t degree, bry_deg_t degree_increase) {
-
-    // TODO
-    ASSERT(degree_increase == 0, "Degree increase not yet implemented");
-
     bry_deg_t to_degree = degree + degree_increase;
-
     auto makeCoeff = [&] (const auto& i_midx, const auto& l_midx) -> bry_float_t {
         // Compute the transformation coefficient in a numerically stable way
         bry_float_t transformation_coeff = 1.0;
@@ -48,10 +43,6 @@ Eigen::MatrixXd BRY::BernsteinBasisTransform<DIM>::bernToPwrMatrix(bry_deg_t deg
 template <std::size_t DIM>
 template <typename COEFF_LAM>
 Eigen::MatrixXd BRY::BernsteinBasisTransform<DIM>::makeBigMatrix(bry_deg_t to_degree, bry_deg_t from_degree, COEFF_LAM makeCoeff) {
-
-    // TODO
-    ASSERT(to_degree == from_degree, "Degree increase not yet implemented");
-
     Eigen::MatrixXd matrix(pow(to_degree + 1, DIM), pow(from_degree + 1, DIM));
     matrix.setZero();
 
@@ -66,11 +57,13 @@ Eigen::MatrixXd BRY::BernsteinBasisTransform<DIM>::makeBigMatrix(bry_deg_t to_de
         std::vector<bry_idx_t> index_bounds;
         index_bounds.reserve(DIM);
         for (bry_idx_t r_i : i_midx)
-            index_bounds.push_back(std::min(r_i + 1, from_degree + 1));
+            index_bounds.push_back(r_i + 1);
 
         // Create the column multi index
-        MultiIndex<BoundedExhaustiveIncrementerWrap> l_midx(l_idx.data(), DIM, true, index_bounds, from_degree + 1);
+        MultiIndex<BoundedExhaustiveIncrementerWrap> l_midx(l_idx.data(), DIM, true, index_bounds, to_degree + 1);
         for (; !l_midx.last(); ++l_midx) {
+            if (l_midx.inc().wrappedIdx() >= matrix.cols())
+                break;
             matrix(i_midx.inc().wrappedIdx(), l_midx.inc().wrappedIdx()) = makeCoeff(i_midx, l_midx);
         }
     }

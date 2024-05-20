@@ -21,20 +21,29 @@ int main() {
     //p.coeff(1, 2) = 8;
     //p.coeff(2, 2) = 9;
 
-    constexpr std::size_t DIM = 1;
-    Polynomial<DIM> p(2);
+    //constexpr std::size_t DIM = 1;
+    //Polynomial<DIM> p(2);
 
-    p.coeff(0) = 1;
-    p.coeff(1) = 1;
-    p.coeff(2) = 1;
-    //p.coeff(3) = 1;
+    //p.coeff(0) = 1;
+    //p.coeff(1) = 1;
+    //p.coeff(2) = 1;
+    ////p.coeff(3) = 1;
 
-    auto p_exp = p * p;
-    std::cout << p_exp.tensor() << std::endl;
-    DEBUG(p_exp);
-    DEBUG(p_exp.nMonomials());
-    DEBUG(p_exp.degree());
+    //auto p_exp = p * p;
+    //std::cout << p_exp.tensor() << std::endl;
+    //DEBUG(p_exp);
+    //DEBUG(p_exp.nMonomials());
+    //DEBUG(p_exp.degree());
 
+    constexpr std::size_t DIM = 2;
+    Eigen::MatrixXd p_to_b = BernsteinBasisTransform<DIM>::pwrToBernMatrix(7, 1);
+    //DEBUG("t mat: \n" << p_to_b);
+    Eigen::MatrixXd p_to_b_inc = BernsteinBasisTransform<DIM>::pwrToBernMatrix(3, 5);
+    //DEBUG("t mat inc: \n" << p_to_b_inc);
+
+    Eigen::MatrixXd diff =(p_to_b.block(0, 0, p_to_b_inc.rows(), p_to_b_inc.cols()) - p_to_b_inc);
+    double d = diff.cwiseAbs().sum();
+    DEBUG("Total diff: " << d);
 
     //bry_deg_t test_degree = 2;
     //INFO("Before tmat");
@@ -93,9 +102,5 @@ int main() {
     //t = 3.0 * t;
 
     //std::cout<< matrix << std::endl;
-
-    Eigen::MatrixXd m(3,3);
-    m.col(0) = Eigen::VectorXd::Ones(3);
-    std::cout << m << std::endl;
 
 }

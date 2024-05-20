@@ -49,7 +49,7 @@
     #define PRINT(msg) std::cout << "\033[0;37m" << msg << "\033[0m \n"
     #define PRINT_VEC2(msg, vec2) std::cout << "\033[0;37m" << msg << " (" << vec2[0] << ", " << vec2[1] << ")\033[0m \n"
     #define PRINT_VEC3(msg, vec3) std::cout << "\033[0;37m" << msg << " (" << vec3[0] << ", " << vec3[1] << ", " << vec3[2] << ")\033[0m \n"
-    #define PRINT_NAMED(name, msg) std::cout << "        "<< BRY_LOG_BGREEN(name) << ": " << BRY_LOG_WHITE(msg)
+    #define PRINT_NAMED(name, msg) std::cout << "        "<< BRY_LOG_BGREEN(name) << ": " << BRY_LOG_WHITE(msg) << "\n"
     #define DEBUG(msg) std::cout << BRY_LOG_BCYAN(" >[DBG] ("<< __func__ << "): ") << BRY_LOG_WHITE(msg) << "\n"
     #define INFO(msg) std::cout << BRY_LOG_BWHITE(" >[IFO]: ") << BRY_LOG_WHITE(msg) << " \n"
     #define ERROR(msg) std::cerr << BRY_LOG_BRED(" >[ERR] ERROR ("<< __func__ << "): ") << BRY_LOG_WHITE(msg) << "\n"

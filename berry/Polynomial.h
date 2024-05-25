@@ -56,7 +56,7 @@ template <std::size_t DIM>
 BRY::Polynomial<DIM, BRY::Basis::Power> operator*(const BRY::Polynomial<DIM, BRY::Basis::Power>& p_1, const BRY::Polynomial<DIM, BRY::Basis::Power>& p_2);
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM, BRY::Basis::Power> operator^(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, BRY::bry_deg_t exp);
+BRY::Polynomial<DIM, BRY::Basis::Power> operator^(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, BRY::bry_int_t exp);
 
 template <std::size_t DIM>
 std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis::Power>& p);
@@ -71,7 +71,7 @@ class Polynomial {
     public:
         /// @brief Construct polynomial of known (max) degree
         /// @param degree Maximum exponent of a given variable
-        Polynomial(bry_deg_t degree);
+        Polynomial(bry_int_t degree);
 
         /// @brief Construct polynomial given a tensor
         /// @param tensor Tensor of coefficients 
@@ -83,11 +83,11 @@ class Polynomial {
 
         /// @brief Construct polynomial given a multiindex-organized vector of coefficients
         /// @param tensor Tensor of coefficients 
-        Polynomial(const Eigen::VectorXd& vector);
+        Polynomial(const Vector& vector);
 
         /// @brief Get the degree
         /// @return Degree
-        BRY_INL bry_deg_t degree() const;
+        BRY_INL bry_int_t degree() const;
 
         /// @brief Access a specific coefficient of a term. Usage (power basis): coeff(1, 0, 3) returns the coefficient of the term (x0)(x2^3)
         /// @tparam ...DEGS 
@@ -114,7 +114,7 @@ class Polynomial {
         bry_float_t operator()(FLTS ... x) const;
 
         /// @brief Get the Number of monomials
-        bry_deg_t nMonomials() const;
+        bry_int_t nMonomials() const;
 
         BRY_INL const Eigen::Tensor<bry_float_t, DIM>& tensor() const;
 
@@ -126,7 +126,7 @@ class Polynomial {
 };
 
 template <std::size_t DIM, Basis BASIS>
-BRY::Polynomial<DIM, Basis::Power> transform(const BRY::Polynomial<DIM, BASIS>& p, const Eigen::MatrixXd& transform_matrix);
+BRY::Polynomial<DIM, Basis::Power> transform(const BRY::Polynomial<DIM, BASIS>& p, const Matrix& transform_matrix);
 
 }
 

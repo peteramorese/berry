@@ -7,12 +7,12 @@
 
 /* Exhaustive Norm Incrementer */
 
-BRY::ExhaustiveIncrementer::ExhaustiveIncrementer(bry_idx_t*& _initial_idx, std::size_t sz, bool first, bry_idx_t index_constraint)
+BRY::ExhaustiveIncrementer::ExhaustiveIncrementer(bry_int_t*& _initial_idx, std::size_t sz, bool first, bry_int_t index_constraint)
     : m_linfty_norm(index_constraint)
 {
     // If an external array is used, do not reallocate
     if (!_initial_idx) {
-        _initial_idx = new bry_idx_t[sz];
+        _initial_idx = new bry_int_t[sz];
     }
 
     if (!first) {
@@ -22,12 +22,12 @@ BRY::ExhaustiveIncrementer::ExhaustiveIncrementer(bry_idx_t*& _initial_idx, std:
     }
 }
 
-BRY::bry_idx_t BRY::ExhaustiveIncrementer::indexConstraint() const {
+BRY::bry_int_t BRY::ExhaustiveIncrementer::indexConstraint() const {
     return m_linfty_norm;
 }
 
 
-bool BRY::ExhaustiveIncrementer::increment(bry_idx_t* current_idx, std::size_t sz) {
+bool BRY::ExhaustiveIncrementer::increment(bry_int_t* current_idx, std::size_t sz) {
     ++current_idx[0];
     for (std::size_t i = 0; i < sz - 1; ++i) {
         if (current_idx[i] >= m_linfty_norm) {
@@ -38,7 +38,7 @@ bool BRY::ExhaustiveIncrementer::increment(bry_idx_t* current_idx, std::size_t s
     return current_idx[sz - 1] < m_linfty_norm;
 }
 
-bool BRY::ExhaustiveIncrementer::decrement(bry_idx_t* current_idx, std::size_t sz) {
+bool BRY::ExhaustiveIncrementer::decrement(bry_int_t* current_idx, std::size_t sz) {
     --current_idx[0];
     for (std::size_t i = 0; i < sz - 1; ++i) {
         if (current_idx[i] < 0) {
@@ -51,12 +51,12 @@ bool BRY::ExhaustiveIncrementer::decrement(bry_idx_t* current_idx, std::size_t s
 
 /* Exhaustive Norm Incrementer */
 
-BRY::ExhaustiveIncrementerWrap::ExhaustiveIncrementerWrap(bry_idx_t*& _initial_idx, std::size_t sz, bool first, bry_idx_t index_constraint)
+BRY::ExhaustiveIncrementerWrap::ExhaustiveIncrementerWrap(bry_int_t*& _initial_idx, std::size_t sz, bool first, bry_int_t index_constraint)
     : m_linfty_norm(index_constraint)
 {
     // If an external array is used, do not reallocate
     if (!_initial_idx) {
-        _initial_idx = new bry_idx_t[sz];
+        _initial_idx = new bry_int_t[sz];
     }
 
     if (!first) {
@@ -68,12 +68,12 @@ BRY::ExhaustiveIncrementerWrap::ExhaustiveIncrementerWrap(bry_idx_t*& _initial_i
     }
 }
 
-BRY::bry_idx_t BRY::ExhaustiveIncrementerWrap::indexConstraint() const {
+BRY::bry_int_t BRY::ExhaustiveIncrementerWrap::indexConstraint() const {
     return m_linfty_norm;
 }
 
 
-bool BRY::ExhaustiveIncrementerWrap::increment(bry_idx_t* current_idx, std::size_t sz) {
+bool BRY::ExhaustiveIncrementerWrap::increment(bry_int_t* current_idx, std::size_t sz) {
     ++current_idx[0];
     ++m_wrapped_idx;
     for (std::size_t i = 0; i < sz - 1; ++i) {
@@ -85,7 +85,7 @@ bool BRY::ExhaustiveIncrementerWrap::increment(bry_idx_t* current_idx, std::size
     return current_idx[sz - 1] < m_linfty_norm;
 }
 
-bool BRY::ExhaustiveIncrementerWrap::decrement(bry_idx_t* current_idx, std::size_t sz) {
+bool BRY::ExhaustiveIncrementerWrap::decrement(bry_int_t* current_idx, std::size_t sz) {
     --current_idx[0];
     --m_wrapped_idx;
     for (std::size_t i = 0; i < sz - 1; ++i) {
@@ -97,19 +97,19 @@ bool BRY::ExhaustiveIncrementerWrap::decrement(bry_idx_t* current_idx, std::size
     return current_idx[sz - 1] >= 0;
 }
 
-BRY::bry_idx_t BRY::ExhaustiveIncrementerWrap::wrappedIdx() const {
+BRY::bry_int_t BRY::ExhaustiveIncrementerWrap::wrappedIdx() const {
     return m_wrapped_idx;
 }
 
 /* Fixed Norm Incrementer */
 
-BRY::FixedNormIncrementer::FixedNormIncrementer(bry_idx_t*& _initial_idx, std::size_t sz, bool first, bry_idx_t index_constraint)
+BRY::FixedNormIncrementer::FixedNormIncrementer(bry_int_t*& _initial_idx, std::size_t sz, bool first, bry_int_t index_constraint)
     : m_combination(index_constraint + sz - 2, false)
     , m_l1_norm(index_constraint)
 {
     // If an external array is used, do not reallocate
     if (!_initial_idx) {
-        _initial_idx = new bry_idx_t[sz];
+        _initial_idx = new bry_int_t[sz];
     }
 
     if (first) {
@@ -124,11 +124,11 @@ BRY::FixedNormIncrementer::FixedNormIncrementer(bry_idx_t*& _initial_idx, std::s
     }
 }
 
-BRY::bry_idx_t BRY::FixedNormIncrementer::indexConstraint() const {
+BRY::bry_int_t BRY::FixedNormIncrementer::indexConstraint() const {
     return m_l1_norm;
 }
 
-bool BRY::FixedNormIncrementer::increment(bry_idx_t* current_idx, std::size_t sz) {
+bool BRY::FixedNormIncrementer::increment(bry_int_t* current_idx, std::size_t sz) {
     if (std::next_permutation(m_combination.begin(), m_combination.end(), std::greater())) {
         updateIdx(current_idx, sz);
         return true;
@@ -138,7 +138,7 @@ bool BRY::FixedNormIncrementer::increment(bry_idx_t* current_idx, std::size_t sz
     }
 }
 
-bool BRY::FixedNormIncrementer::decrement(bry_idx_t* current_idx, std::size_t sz) {
+bool BRY::FixedNormIncrementer::decrement(bry_int_t* current_idx, std::size_t sz) {
     if (std::prev_permutation(m_combination.begin(), m_combination.end(), std::greater())) {
         updateIdx(current_idx, sz);
         return true;
@@ -148,7 +148,7 @@ bool BRY::FixedNormIncrementer::decrement(bry_idx_t* current_idx, std::size_t sz
     }
 }
 
-void BRY::FixedNormIncrementer::updateIdx(bry_idx_t* current_idx, std::size_t sz) const {
+void BRY::FixedNormIncrementer::updateIdx(bry_int_t* current_idx, std::size_t sz) const {
     std::size_t d_i = 0;
     std::size_t sum = 0;
     for (bool bit : m_combination) {
@@ -164,13 +164,13 @@ void BRY::FixedNormIncrementer::updateIdx(bry_idx_t* current_idx, std::size_t sz
 
 /* Bounded Exhaustive Incrementer Wrap */
 
-BRY::BoundedExhaustiveIncrementerWrap::BoundedExhaustiveIncrementerWrap(bry_idx_t*& _initial_idx, std::size_t sz, bool first, const std::vector<bry_idx_t>& index_bounds, bry_idx_t index_constraint) 
+BRY::BoundedExhaustiveIncrementerWrap::BoundedExhaustiveIncrementerWrap(bry_int_t*& _initial_idx, std::size_t sz, bool first, const std::vector<bry_int_t>& index_bounds, bry_int_t index_constraint) 
     : m_index_bounds(index_bounds)
     , m_linfty_norm(index_constraint)
 {
     // If an external array is used, do not reallocate
     if (!_initial_idx) {
-        _initial_idx = new bry_idx_t[index_bounds.size()];
+        _initial_idx = new bry_int_t[index_bounds.size()];
     }
 
     if (first) {
@@ -185,11 +185,11 @@ BRY::BoundedExhaustiveIncrementerWrap::BoundedExhaustiveIncrementerWrap(bry_idx_
     }
 }
 
-const std::vector<BRY::bry_idx_t>& BRY::BoundedExhaustiveIncrementerWrap::indexConstraint() const {
+const std::vector<BRY::bry_int_t>& BRY::BoundedExhaustiveIncrementerWrap::indexConstraint() const {
     return m_index_bounds;
 }
 
-bool BRY::BoundedExhaustiveIncrementerWrap::increment(bry_idx_t* current_idx, std::size_t sz) {
+bool BRY::BoundedExhaustiveIncrementerWrap::increment(bry_int_t* current_idx, std::size_t sz) {
     ++current_idx[0];
     ++m_wrapped_idx;
     for (std::size_t i = 0; i < sz - 1; ++i) {
@@ -202,7 +202,7 @@ bool BRY::BoundedExhaustiveIncrementerWrap::increment(bry_idx_t* current_idx, st
     return current_idx[sz - 1] < m_index_bounds.back();
 }
 
-bool BRY::BoundedExhaustiveIncrementerWrap::decrement(bry_idx_t* current_idx, std::size_t sz) {
+bool BRY::BoundedExhaustiveIncrementerWrap::decrement(bry_int_t* current_idx, std::size_t sz) {
     --current_idx[0];
     --m_wrapped_idx;
     for (std::size_t i = 0; i < sz - 1; ++i) {
@@ -215,7 +215,7 @@ bool BRY::BoundedExhaustiveIncrementerWrap::decrement(bry_idx_t* current_idx, st
     return current_idx[sz - 1] >= 0;
 }
 
-BRY::bry_idx_t BRY::BoundedExhaustiveIncrementerWrap::wrappedIdx() const {
+BRY::bry_int_t BRY::BoundedExhaustiveIncrementerWrap::wrappedIdx() const {
     return m_wrapped_idx;
 }
 
@@ -234,7 +234,7 @@ BRY::MultiIndex<INCREMENTER>::MultiIndex(std::size_t sz, bool first, ARGS&&... a
 
 template <class INCREMENTER>
 template <typename ... ARGS>
-BRY::MultiIndex<INCREMENTER>::MultiIndex(bry_idx_t* array, std::size_t sz, bool first, ARGS&&... args)
+BRY::MultiIndex<INCREMENTER>::MultiIndex(bry_int_t* array, std::size_t sz, bool first, ARGS&&... args)
     : m_idx(array)
     , m_sz(sz)
     , m_incrementer(m_idx, m_sz, first, std::forward<ARGS>(args)...)
@@ -311,7 +311,7 @@ bool BRY::MultiIndex<INCREMENTER>::last() const {
 }
 
 template <class INCREMENTER>
-BRY::bry_idx_t BRY::MultiIndex<INCREMENTER>::operator[](std::size_t d) const {
+BRY::bry_int_t BRY::MultiIndex<INCREMENTER>::operator[](std::size_t d) const {
 #ifdef BRY_ENABLE_BOUNDS_CHECK
     ASSERT(d < m_sz, "Subscript d is out of bounds");
 #endif
@@ -319,12 +319,12 @@ BRY::bry_idx_t BRY::MultiIndex<INCREMENTER>::operator[](std::size_t d) const {
 }
 
 template <class INCREMENTER>
-const BRY::bry_idx_t* BRY::MultiIndex<INCREMENTER>::begin() const {
+const BRY::bry_int_t* BRY::MultiIndex<INCREMENTER>::begin() const {
     return m_idx;
 }
 
 template <class INCREMENTER>
-const BRY::bry_idx_t* BRY::MultiIndex<INCREMENTER>::end() const {
+const BRY::bry_int_t* BRY::MultiIndex<INCREMENTER>::end() const {
     return m_idx + m_sz;
 }
 
@@ -340,34 +340,34 @@ std::ostream& operator<<(std::ostream& os, const BRY::MultiIndex<INCREMENTER>& i
     return os;
 }
 
-BRY::MultiIndex<BRY::ExhaustiveIncrementer> BRY::mIdx(std::size_t sz, bry_idx_t index_constraint) {
+BRY::MultiIndex<BRY::ExhaustiveIncrementer> BRY::mIdx(std::size_t sz, bry_int_t index_constraint) {
     return BRY::MultiIndex<BRY::ExhaustiveIncrementer>(sz, true, index_constraint);
 }
 
-BRY::MultiIndex<BRY::ExhaustiveIncrementer> BRY::rmIdx(std::size_t sz, bry_idx_t index_constraint) {
+BRY::MultiIndex<BRY::ExhaustiveIncrementer> BRY::rmIdx(std::size_t sz, bry_int_t index_constraint) {
     return BRY::MultiIndex<BRY::ExhaustiveIncrementer>(sz, false, index_constraint);
 }
 
-BRY::MultiIndex<BRY::ExhaustiveIncrementerWrap> BRY::mIdxW(std::size_t sz, bry_idx_t index_constraint) {
+BRY::MultiIndex<BRY::ExhaustiveIncrementerWrap> BRY::mIdxW(std::size_t sz, bry_int_t index_constraint) {
     return BRY::MultiIndex<BRY::ExhaustiveIncrementerWrap>(sz, true, index_constraint);
 }
 
-BRY::MultiIndex<BRY::ExhaustiveIncrementerWrap> BRY::rmIdxW(std::size_t sz, bry_idx_t index_constraint) {
+BRY::MultiIndex<BRY::ExhaustiveIncrementerWrap> BRY::rmIdxW(std::size_t sz, bry_int_t index_constraint) {
     return BRY::MultiIndex<BRY::ExhaustiveIncrementerWrap>(sz, false, index_constraint);
 }
 
-BRY::MultiIndex<BRY::FixedNormIncrementer> BRY::mIdxFN(std::size_t sz, bry_idx_t index_constraint) {
+BRY::MultiIndex<BRY::FixedNormIncrementer> BRY::mIdxFN(std::size_t sz, bry_int_t index_constraint) {
     return BRY::MultiIndex<BRY::FixedNormIncrementer>(sz, true, index_constraint);
 }
 
-BRY::MultiIndex<BRY::FixedNormIncrementer> BRY::rmIdxFN(std::size_t sz, bry_idx_t index_constraint) {
+BRY::MultiIndex<BRY::FixedNormIncrementer> BRY::rmIdxFN(std::size_t sz, bry_int_t index_constraint) {
     return BRY::MultiIndex<BRY::FixedNormIncrementer>(sz, false, index_constraint);
 }
 
-BRY::MultiIndex<BRY::BoundedExhaustiveIncrementerWrap> BRY::mIdxBEW(const std::vector<bry_idx_t>& index_bounds, bry_idx_t index_constraint) {
+BRY::MultiIndex<BRY::BoundedExhaustiveIncrementerWrap> BRY::mIdxBEW(const std::vector<bry_int_t>& index_bounds, bry_int_t index_constraint) {
     return BRY::MultiIndex<BRY::BoundedExhaustiveIncrementerWrap>(index_bounds.size(), true, index_bounds, index_constraint);
 }
 
-BRY::MultiIndex<BRY::BoundedExhaustiveIncrementerWrap> BRY::rmIdxBEW(const std::vector<bry_idx_t>& index_bounds, bry_idx_t index_constraint) {
+BRY::MultiIndex<BRY::BoundedExhaustiveIncrementerWrap> BRY::rmIdxBEW(const std::vector<bry_int_t>& index_bounds, bry_int_t index_constraint) {
     return BRY::MultiIndex<BRY::BoundedExhaustiveIncrementerWrap>(index_bounds.size(), false, index_bounds, index_constraint);
 }

@@ -45,7 +45,7 @@ int main() {
     double d = diff.cwiseAbs().sum();
     DEBUG("Total diff: " << d);
 
-    //bry_deg_t test_degree = 2;
+    //bry_int_t test_degree = 2;
     //INFO("Before tmat");
     //Eigen::MatrixXd tmat = BernsteinBasisTransform<DIM>::getTfMatrix(test_degree, 0);
     //INFO("Done!");

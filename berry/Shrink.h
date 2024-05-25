@@ -19,7 +19,7 @@ namespace Shrink {
 /// @param new_degree Degree of the shrunken polynomial
 /// @return Reduced degree polynomial
 template <std::size_t DIM>
-static Polynomial<DIM, Basis::Power> pruneHigherOrder(const Polynomial<DIM, Basis::Power>& p, bry_deg_t new_degree);
+static Polynomial<DIM, Basis::Power> pruneHigherOrder(const Polynomial<DIM, Basis::Power>& p, bry_int_t new_degree);
 
 /// @brief Reduce degree of polynomial such that the lower order polynomial upper bounds the original on the hypercube `[0, 1]^DIM`
 /// @tparam DIM Dimension of polynomial
@@ -27,7 +27,7 @@ static Polynomial<DIM, Basis::Power> pruneHigherOrder(const Polynomial<DIM, Basi
 /// @param new_degree Degree of the shrunken polynomial
 /// @return Reduced degree polynomial (upper bound of `p`)
 template <std::size_t DIM>
-static Polynomial<DIM, Basis::Power> upperBound01(const Polynomial<DIM, Basis::Power>& p, bry_deg_t new_degree);
+static Polynomial<DIM, Basis::Power> upperBound01(const Polynomial<DIM, Basis::Power>& p, bry_int_t new_degree);
 
 /// @brief Reduce degree of polynomial such that the lower order polynomial lower bounds the original on the hypercube `[0, 1]^DIM`
 /// @tparam DIM Dimension of polynomial
@@ -35,7 +35,7 @@ static Polynomial<DIM, Basis::Power> upperBound01(const Polynomial<DIM, Basis::P
 /// @param new_degree Degree of the shrunken polynomial
 /// @return Reduced degree polynomial (lower bound of `p`)
 template <std::size_t DIM>
-static Polynomial<DIM, Basis::Power> lowerBound01(const Polynomial<DIM, Basis::Power>& p, bry_deg_t new_degree);
+static Polynomial<DIM, Basis::Power> lowerBound01(const Polynomial<DIM, Basis::Power>& p, bry_int_t new_degree);
 
 }
 

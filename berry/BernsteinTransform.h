@@ -17,7 +17,7 @@ class BernsteinBasisTransform {
         /// @param degree_increase Elevate the degree of the Bernstein basis. 
         /// If this is 0, the degree of the Bernstein polynomial is the same as the power polynomial
         /// @return Polynomial in the Bernstein basis
-        Polynomial<DIM, Basis::Bernstein> to(const Polynomial<DIM, Basis::Power>& p, bry_deg_t degree_increase = 0);
+        Polynomial<DIM, Basis::Bernstein> to(const Polynomial<DIM, Basis::Power>& p, bry_int_t degree_increase = 0);
 
         /* TODO */
         //Polynomial<DIM, Basis::Power> from(const Polynomial<DIM, Basis::Bernstein>& p);
@@ -30,15 +30,15 @@ class BernsteinBasisTransform {
         /// @param degree Degree of the power basis polynomial
         /// @param degree_increase Elevate the degree of the transformation
         /// @return Transformation matrix of elevated degree (`degree + degree_increase`)
-        static Eigen::MatrixXd pwrToBernMatrix(bry_deg_t degree, bry_deg_t degree_increase = 0);
+        static Matrix pwrToBernMatrix(bry_int_t degree, bry_int_t degree_increase = 0);
 
         /// @brief Compute the inverse transformation matrix for Bernstein basis to power basis
         /// @param degree Degree of the Bernstein basis polynomial
         /// @return Transformation matrix
-        static Eigen::MatrixXd bernToPwrMatrix(bry_deg_t degree);
+        static Matrix bernToPwrMatrix(bry_int_t degree);
     private:
         template <typename COEFF_LAM>
-        static Eigen::MatrixXd makeBigMatrix(bry_deg_t to_degree, bry_deg_t from_degree, COEFF_LAM makeCoeff);
+        static Matrix makeBigMatrix(bry_int_t to_degree, bry_int_t from_degree, COEFF_LAM makeCoeff);
 
     private:
         bry_float_t m_min_coeff;

@@ -55,7 +55,7 @@ std::size_t BRY::multinom(const MultiIndex<>& idx) {
     return multinom(idx.inc().indexConstraint(), idx);
 }
 
-BRY::bry_deg_t BRY::pow(bry_deg_t x, std::size_t n) {
+BRY::bry_int_t BRY::pow(bry_int_t x, std::size_t n) {
     if (n == 0)
         return 1;
 

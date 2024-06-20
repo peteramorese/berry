@@ -74,6 +74,11 @@ BRY::bry_float_t& BRY::Polynomial<DIM, BASIS>::coeff(DEGS ... exponents) {
 }
 
 template <std::size_t DIM, BRY::Basis BASIS>
+BRY::bry_float_t& BRY::Polynomial<DIM, BASIS>::coeff(const std::array<bry_int_t, DIM>& exponents) {
+    return m_tensor(exponents);
+}
+
+template <std::size_t DIM, BRY::Basis BASIS>
 template <typename ... DEGS>
 const BRY::bry_float_t& BRY::Polynomial<DIM, BASIS>::coeff(DEGS ... exponents) const {
     static_assert(is_uniform_convertible_type<bry_int_t, DEGS ...>(), "All parameters passed to `coeff` must be degree type (`bry_int_t`)");
@@ -82,14 +87,22 @@ const BRY::bry_float_t& BRY::Polynomial<DIM, BASIS>::coeff(DEGS ... exponents) c
 }
 
 template <std::size_t DIM, BRY::Basis BASIS>
+const BRY::bry_float_t& BRY::Polynomial<DIM, BASIS>::coeff(const std::array<bry_int_t, DIM>& exponents) const {
+    return m_tensor(exponents);
+}
+
+template <std::size_t DIM, BRY::Basis BASIS>
 template <typename ... FLTS>
 BRY::bry_float_t BRY::Polynomial<DIM, BASIS>::operator()(FLTS ... x) const {
+    static_assert(is_uniform_convertible_type<bry_float_t, FLTS ...>(), "All parameters passed to `operator()` must be float type (`bry_float_t`)");
+    static_assert(sizeof...(FLTS) == DIM, "Number of x parameters must match the dimension of the polynomial");
+    return operator()(makeArray<bry_float_t>(x ...));
+}
+
+template <std::size_t DIM, BRY::Basis BASIS>
+BRY::bry_float_t BRY::Polynomial<DIM, BASIS>::operator()(const std::array<bry_float_t, DIM>& x) const {
     static_assert(BASIS == BRY::Basis::Power, "Evaluation of polynomials not in Power basis currently not supported");
     if constexpr (BASIS == BRY::Basis::Power) {
-        static_assert(is_uniform_convertible_type<bry_float_t, FLTS ...>(), "All parameters passed to `operator()` must be float type (`bry_float_t`)");
-        static_assert(sizeof...(FLTS) == DIM, "Number of x parameters must match the dimension of the polynomial");
-
-        auto x_arr = makeArray<bry_float_t>(x ...);
 
         // Used to store temporary sums of each x variable multiplier
         auto x_cache = makeUniformArray<bry_float_t, DIM + 1>(0.0);
@@ -109,7 +122,7 @@ BRY::bry_float_t BRY::Polynomial<DIM, BASIS>::operator()(FLTS ... x) const {
             bry_int_t cache_idx = DIM;
             for (; cache_idx >= 1; --cache_idx) {
                 if ((i + 1) % deg_powers[cache_idx - 1] == 0) {
-                    multiplier = x_arr[cache_idx - 1];
+                    multiplier = x[cache_idx - 1];
                     break;
                 }
             }

@@ -95,6 +95,7 @@ class Polynomial {
         /// @return Reference to mutable value
         template <typename ... DEGS>
         BRY_INL bry_float_t& coeff(DEGS ... exponents);
+        BRY_INL bry_float_t& coeff(const std::array<bry_int_t, DIM>& exponents);
 
         /// @brief Access a specific coefficient of a term. Usage (power basis): coeff(1, 0, 3) returns the coefficient of the term (x0)(x2^3)
         /// @tparam ...DEGS 
@@ -102,16 +103,18 @@ class Polynomial {
         /// @return Reference to imutable value
         template <typename ... DEGS>
         BRY_INL const bry_float_t& coeff(DEGS ... exponents) const;
+        BRY_INL const bry_float_t& coeff(const std::array<bry_int_t, DIM>& exponents) const;
 
         // Operators
 
         /* TODO */
-        /// @brief Evaluation
+        /// @brief Evaluate the polynomial for given x vector
         /// @tparam ...FLTS 
-        /// @param ...x 
-        /// @return 
+        /// @param ...x `x` values
+        /// @return Scalar 
         template <typename ... FLTS>
         bry_float_t operator()(FLTS ... x) const;
+        bry_float_t operator()(const std::array<bry_float_t, DIM>& x) const;
 
         /// @brief Get the Number of monomials
         bry_int_t nMonomials() const;

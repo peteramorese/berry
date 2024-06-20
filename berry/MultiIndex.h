@@ -110,13 +110,13 @@ class MultiIndex {
         BRY_INL MultiIndex& operator++();
 
         /// @brief Postfix increment. Moves the multi index along (right) by one step
-        BRY_INL MultiIndex operator++(int);
+        //BRY_INL MultiIndex operator++(int);
 
         /// @brief Prefix decrement. Moves the multi index backwards (left) by one step
         BRY_INL MultiIndex& operator--();
 
         /// @brief Postfix decrement. Moves the multi index backwards (left) by one step
-        BRY_INL MultiIndex operator--(int);
+        //BRY_INL MultiIndex operator--(int);
 
         /// @brief Check if the first permutation is reached
         BRY_INL bool first() const;

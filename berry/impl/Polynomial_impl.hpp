@@ -5,6 +5,7 @@
 #include "Operations.h"
 
 #include <cmath>
+#include <math.h>
 #include <stdexcept>
 
 namespace _BRY {
@@ -80,16 +81,53 @@ const BRY::bry_float_t& BRY::Polynomial<DIM, BASIS>::coeff(DEGS ... exponents) c
     return m_tensor(exponents...);
 }
 
-/* TODO */
-//template <std::size_t DIM, BRY::Basis BASIS>
-//template <typename ... FLTS>
-//BRY::bry_float_t BRY::Polynomial<DIM, BASIS>::operator()(FLTS ... x) const {
-//    static_assert(is_uniform_convertible_type<bry_float_t, FLTS ...>(), "All parameters passed to `operator()` must be float type (`bry_float_t`)");
-//    static_assert(sizeof...(FLTS) == DIM, "Number of x parameters must match the dimension of the polynomial");
-//    auto x_arr = makeArray<bry_float_t>(x ...);
-//
-//    //for (bry_float_t coeff)
-//}
+template <std::size_t DIM, BRY::Basis BASIS>
+template <typename ... FLTS>
+BRY::bry_float_t BRY::Polynomial<DIM, BASIS>::operator()(FLTS ... x) const {
+    static_assert(BASIS == BRY::Basis::Power, "Evaluation of polynomials not in Power basis currently not supported");
+    if constexpr (BASIS == BRY::Basis::Power) {
+        static_assert(is_uniform_convertible_type<bry_float_t, FLTS ...>(), "All parameters passed to `operator()` must be float type (`bry_float_t`)");
+        static_assert(sizeof...(FLTS) == DIM, "Number of x parameters must match the dimension of the polynomial");
+
+        auto x_arr = makeArray<bry_float_t>(x ...);
+
+        // Used to store temporary sums of each x variable multiplier
+        auto x_cache = makeUniformArray<bry_float_t, DIM + 1>(0.0);
+
+        std::array<bry_int_t, DIM> deg_powers;
+        for (std::size_t d = 0; d < DIM; ++d) {
+            deg_powers[d] = pow(degree() + 1, d);
+        }
+
+        const bry_float_t* tensor_end_ptr = m_tensor.data() + m_tensor.size();
+
+        for (bry_int_t i = 0; i < m_tensor.size() - 1; ++i) {
+            // Set the 0'th cache spot to always be the coefficient
+            x_cache[0] = *(--tensor_end_ptr);
+
+            bry_float_t multiplier;
+            bry_int_t cache_idx = DIM;
+            for (; cache_idx >= 1; --cache_idx) {
+                if ((i + 1) % deg_powers[cache_idx - 1] == 0) {
+                    multiplier = x_arr[cache_idx - 1];
+                    break;
+                }
+            }
+
+            // Set prior caches to zero
+            for (bry_int_t j = 0; j < cache_idx; ++j) {
+                x_cache[j + 1] += x_cache[j];
+                x_cache[j] = 0.0;
+            }
+            
+            // Multiply the current cache by the corresponding x value
+            x_cache[cache_idx] *= multiplier;
+        }
+        x_cache[0] = *m_tensor.data();
+        return std::accumulate(x_cache.begin(), x_cache.end(), 0.0);
+    } else {
+    }
+}
 
 template <std::size_t DIM>
 std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis::Power>& p) {

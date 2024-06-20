@@ -5,19 +5,19 @@
 #include "Operations.h"
 
 #include <cmath>
-
-#include <unsupported/Eigen/FFT>
+#include <math.h>
+#include <stdexcept>
 
 namespace _BRY {
     template <std::size_t DIM>
-    Eigen::Tensor<BRY::bry_float_t, DIM> expandToMatchSize(const Eigen::Tensor<BRY::bry_float_t, DIM>& tensor, BRY::bry_deg_t sz) {
+    Eigen::Tensor<BRY::bry_float_t, DIM> expandToMatchSize(const Eigen::Tensor<BRY::bry_float_t, DIM>& tensor, BRY::bry_int_t sz) {
 
         #ifdef BRY_ENABLE_BOUNDS_CHECK
             ASSERT(tensor.dimension(0) < sz, "Input tensor is not smaller than desired size");
         #endif
 
-        std::array<std::pair<BRY::bry_idx_t, BRY::bry_idx_t>, DIM> paddings;
-        for (std::pair<BRY::bry_idx_t, BRY::bry_idx_t>& pads : paddings) {
+        std::array<std::pair<BRY::bry_int_t, BRY::bry_int_t>, DIM> paddings;
+        for (std::pair<BRY::bry_int_t, BRY::bry_int_t>& pads : paddings) {
             pads.first = 0;
             pads.second = sz - tensor.dimension(0);
         }
@@ -26,59 +26,112 @@ namespace _BRY {
     }
 }
 
-template <std::size_t DIM>
-BRY::Polynomial<DIM>::Polynomial(bry_deg_t degree)
-    : m_tensor(makeUniformArray<bry_deg_t, DIM>(degree + 1))
+template <std::size_t DIM, BRY::Basis BASIS>
+BRY::Polynomial<DIM, BASIS>::Polynomial(bry_int_t degree)
+    : m_tensor(makeUniformArray<bry_int_t, DIM>(degree + 1))
 {
     m_tensor.setZero();
 }
 
-template <std::size_t DIM>
-BRY::Polynomial<DIM>::Polynomial(const Eigen::Tensor<bry_float_t, DIM>& tensor) 
+template <std::size_t DIM, BRY::Basis BASIS>
+BRY::Polynomial<DIM, BASIS>::Polynomial(const Eigen::Tensor<bry_float_t, DIM>& tensor) 
     : m_tensor(tensor)
 {}
 
-template <std::size_t DIM>
-BRY::Polynomial<DIM>::Polynomial(Eigen::Tensor<bry_float_t, DIM>&& tensor) 
+template <std::size_t DIM, BRY::Basis BASIS>
+BRY::Polynomial<DIM, BASIS>::Polynomial(Eigen::Tensor<bry_float_t, DIM>&& tensor) 
     : m_tensor(std::move(tensor))
 {}
 
-template <std::size_t DIM>
-BRY::bry_deg_t BRY::Polynomial<DIM>::degree() const {
+template <std::size_t DIM, BRY::Basis BASIS>
+BRY::Polynomial<DIM, BASIS>::Polynomial(const Vector& vector)
+{
+    bry_int_t new_size = static_cast<bry_int_t>(std::pow(vector.size(), 1.0 / static_cast<bry_float_t>(DIM)));
+    if (pow(new_size, DIM) < vector.size())
+        new_size += 1;
+
+    if (pow(new_size, DIM) != vector.size()) {
+        ERROR("Input vector dimension mismatch");
+        throw std::invalid_argument("Input vector dimension mismatch");
+    }
+
+    m_tensor = Eigen::Tensor<bry_float_t, DIM>(makeUniformArray<bry_int_t, DIM>(new_size));
+    Eigen::Map<Vector> p_vec(m_tensor.data(), vector.size());
+    p_vec = vector;
+}
+
+template <std::size_t DIM, BRY::Basis BASIS>
+BRY::bry_int_t BRY::Polynomial<DIM, BASIS>::degree() const {
     return m_tensor.dimension(0) - 1;
 }
 
-template <std::size_t DIM>
+template <std::size_t DIM, BRY::Basis BASIS>
 template <typename ... DEGS>
-BRY::bry_float_t& BRY::Polynomial<DIM>::coeff(DEGS ... exponents) {
-    static_assert(is_uniform_convertible_type<bry_deg_t, DEGS ...>(), "All parameters passed to `coeff` must be degree type (`bry_deg_t`)");
+BRY::bry_float_t& BRY::Polynomial<DIM, BASIS>::coeff(DEGS ... exponents) {
+    static_assert(is_uniform_convertible_type<bry_int_t, DEGS ...>(), "All parameters passed to `coeff` must be degree type (`bry_int_t`)");
     static_assert(sizeof...(DEGS) == DIM, "Number of exponents must match the dimension of the polynomial");
     return m_tensor(exponents...);
 }
 
-template <std::size_t DIM>
+template <std::size_t DIM, BRY::Basis BASIS>
 template <typename ... DEGS>
-const BRY::bry_float_t& BRY::Polynomial<DIM>::coeff(DEGS ... exponents) const {
-    static_assert(is_uniform_convertible_type<bry_deg_t, DEGS ...>(), "All parameters passed to `coeff` must be degree type (`bry_deg_t`)");
+const BRY::bry_float_t& BRY::Polynomial<DIM, BASIS>::coeff(DEGS ... exponents) const {
+    static_assert(is_uniform_convertible_type<bry_int_t, DEGS ...>(), "All parameters passed to `coeff` must be degree type (`bry_int_t`)");
     static_assert(sizeof...(DEGS) == DIM, "Number of exponents must match the dimension of the polynomial");
     return m_tensor(exponents...);
 }
 
-/* TODO */
-//template <std::size_t DIM>
-//template <typename ... FLTS>
-//BRY::bry_float_t BRY::Polynomial<DIM>::operator()(FLTS ... x) const {
-//    static_assert(is_uniform_convertible_type<bry_float_t, FLTS ...>(), "All parameters passed to `operator()` must be float type (`bry_float_t`)");
-//    static_assert(sizeof...(FLTS) == DIM, "Number of x parameters must match the dimension of the polynomial");
-//    auto x_arr = makeArray<bry_float_t>(x ...);
-//
-//    //for (bry_float_t coeff)
-//}
+template <std::size_t DIM, BRY::Basis BASIS>
+template <typename ... FLTS>
+BRY::bry_float_t BRY::Polynomial<DIM, BASIS>::operator()(FLTS ... x) const {
+    static_assert(BASIS == BRY::Basis::Power, "Evaluation of polynomials not in Power basis currently not supported");
+    if constexpr (BASIS == BRY::Basis::Power) {
+        static_assert(is_uniform_convertible_type<bry_float_t, FLTS ...>(), "All parameters passed to `operator()` must be float type (`bry_float_t`)");
+        static_assert(sizeof...(FLTS) == DIM, "Number of x parameters must match the dimension of the polynomial");
 
+        auto x_arr = makeArray<bry_float_t>(x ...);
+
+        // Used to store temporary sums of each x variable multiplier
+        auto x_cache = makeUniformArray<bry_float_t, DIM + 1>(0.0);
+
+        std::array<bry_int_t, DIM> deg_powers;
+        for (std::size_t d = 0; d < DIM; ++d) {
+            deg_powers[d] = pow(degree() + 1, d);
+        }
+
+        const bry_float_t* tensor_end_ptr = m_tensor.data() + m_tensor.size();
+
+        for (bry_int_t i = 0; i < m_tensor.size() - 1; ++i) {
+            // Set the 0'th cache spot to always be the coefficient
+            x_cache[0] = *(--tensor_end_ptr);
+
+            bry_float_t multiplier;
+            bry_int_t cache_idx = DIM;
+            for (; cache_idx >= 1; --cache_idx) {
+                if ((i + 1) % deg_powers[cache_idx - 1] == 0) {
+                    multiplier = x_arr[cache_idx - 1];
+                    break;
+                }
+            }
+
+            // Set prior caches to zero
+            for (bry_int_t j = 0; j < cache_idx; ++j) {
+                x_cache[j + 1] += x_cache[j];
+                x_cache[j] = 0.0;
+            }
+            
+            // Multiply the current cache by the corresponding x value
+            x_cache[cache_idx] *= multiplier;
+        }
+        x_cache[0] = *m_tensor.data();
+        return std::accumulate(x_cache.begin(), x_cache.end(), 0.0);
+    } else {
+    }
+}
 
 template <std::size_t DIM>
-std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM>& p) {
-    std::array<BRY::bry_deg_t, DIM> idx_arr = BRY::makeUniformArray<BRY::bry_deg_t, DIM>(BRY::bry_deg_t{});
+std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis::Power>& p) {
+    std::array<BRY::bry_int_t, DIM> idx_arr = BRY::makeUniformArray<BRY::bry_int_t, DIM>(BRY::bry_int_t{});
     std::size_t d = 0;
     bool first = true;
 
@@ -105,9 +158,14 @@ std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM>& p) {
         first = false;
 
         os << BRY_LOG_BYELLOW(coeff);
-        for (std::size_t dim = 0; dim < DIM; ++dim) {
-            if (idx_arr[dim] > 0)
-                os << BRY_LOG_WHITE("(x" << dim << "^") << BRY_LOG_BGREEN(idx_arr[dim]) << BRY_LOG_WHITE(")");
+        if constexpr (DIM != 1) {
+            for (std::size_t dim = 0; dim < DIM; ++dim) {
+                if (idx_arr[dim] > 0)
+                    os << BRY_LOG_WHITE("(x" << dim << "^") << BRY_LOG_BGREEN(idx_arr[dim]) << BRY_LOG_WHITE(")");
+            }
+        } else {
+            if (idx_arr[0] > 0)
+                os << BRY_LOG_WHITE("x^") << BRY_LOG_BGREEN(idx_arr[0]);
         }
         iterate();
     }
@@ -115,16 +173,32 @@ std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM>& p) {
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator+(BRY::bry_float_t scalar, const BRY::Polynomial<DIM>& p) {
-    BRY::Polynomial<DIM> p_new = p;
-    *p_new.m_tensor.data() += scalar;
-    return p_new;
+std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis::Bernstein>& p) {
+    os << "TODO";
+    return os;
+}
+
+template <std::size_t DIM, BRY::Basis BASIS>
+BRY::bry_int_t BRY::Polynomial<DIM, BASIS>::nMonomials() const {
+    return m_tensor.size();
+}
+
+template <std::size_t DIM, BRY::Basis BASIS>
+const Eigen::Tensor<BRY::bry_float_t, DIM>& BRY::Polynomial<DIM, BASIS>::tensor() const {
+    return m_tensor;
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator+(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2) {
-    const BRY::Polynomial<DIM>* p_big;
-    const BRY::Polynomial<DIM>* p_small;
+BRY::Polynomial<DIM, BRY::Basis::Power> operator+(BRY::bry_float_t scalar, const BRY::Polynomial<DIM, BRY::Basis::Power>& p) {
+    Eigen::Tensor<BRY::bry_float_t, DIM> new_tensor = p.tensor();
+    *new_tensor.data() += scalar;
+    return BRY::Polynomial<DIM, BRY::Basis::Power>(std::move(new_tensor));
+}
+
+template <std::size_t DIM>
+BRY::Polynomial<DIM, BRY::Basis::Power> operator+(const BRY::Polynomial<DIM, BRY::Basis::Power>& p_1, const BRY::Polynomial<DIM, BRY::Basis::Power>& p_2) {
+    const BRY::Polynomial<DIM, BRY::Basis::Power>* p_big;
+    const BRY::Polynomial<DIM, BRY::Basis::Power>* p_small;
     if ((p_1.degree() > p_2.degree())) {
         p_big = &p_1;
         p_small = &p_2;
@@ -133,49 +207,49 @@ BRY::Polynomial<DIM> operator+(const BRY::Polynomial<DIM>& p_1, const BRY::Polyn
         p_small = &p_1;
     }
 
-    std::array<std::pair<BRY::bry_idx_t, BRY::bry_idx_t>, DIM> paddings;
-    for (std::pair<BRY::bry_idx_t, BRY::bry_idx_t>& pads : paddings) {
+    std::array<std::pair<BRY::bry_int_t, BRY::bry_int_t>, DIM> paddings;
+    for (std::pair<BRY::bry_int_t, BRY::bry_int_t>& pads : paddings) {
         pads.first = 0;
         pads.second = p_big->degree() - p_small->degree();
     }
 
-    Eigen::Tensor<BRY::bry_float_t, DIM> new_tensor = p_small->m_tensor.pad(paddings);
-    new_tensor += p_big->m_tensor;
-    BRY::Polynomial<DIM> p_new(std::move(new_tensor));
+    Eigen::Tensor<BRY::bry_float_t, DIM> new_tensor = p_small->tensor().pad(paddings);
+    new_tensor += p_big->tensor();
+    BRY::Polynomial<DIM, BRY::Basis::Power> p_new(std::move(new_tensor));
     return p_new;
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator-(const BRY::Polynomial<DIM>& p) {
-    return BRY::Polynomial<DIM>(-p.m_tensor);
+BRY::Polynomial<DIM, BRY::Basis::Power> operator-(const BRY::Polynomial<DIM, BRY::Basis::Power>& p) {
+    return BRY::Polynomial<DIM, BRY::Basis::Power>(-p.tensor());
 }
 
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator-(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2) {
+BRY::Polynomial<DIM, BRY::Basis::Power> operator-(const BRY::Polynomial<DIM, BRY::Basis::Power>& p_1, const BRY::Polynomial<DIM, BRY::Basis::Power>& p_2) {
     return p_1 + -p_2;
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator*(BRY::bry_float_t scalar, const BRY::Polynomial<DIM>& p) {
-    return BRY::Polynomial<DIM>(scalar * p.m_tensor);
+BRY::Polynomial<DIM, BRY::Basis::Power> operator*(BRY::bry_float_t scalar, const BRY::Polynomial<DIM, BRY::Basis::Power>& p) {
+    return BRY::Polynomial<DIM, BRY::Basis::Power>(scalar * p.tensor());
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p, BRY::bry_float_t scalar) {
+BRY::Polynomial<DIM, BRY::Basis::Power> operator*(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, BRY::bry_float_t scalar) {
     return scalar * p;
 }
 
 /* TODO: Make this faster */
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2) {
+BRY::Polynomial<DIM, BRY::Basis::Power> operator*(const BRY::Polynomial<DIM, BRY::Basis::Power>& p_1, const BRY::Polynomial<DIM, BRY::Basis::Power>& p_2) {
 
-    BRY::bry_deg_t desired_size = p_1.degree() + p_2.degree() + 2;
+    BRY::bry_int_t desired_size = p_1.degree() + p_2.degree() + 1;
 
-    Eigen::Tensor<BRY::bry_float_t, DIM> p_1_tensor_rszd = _BRY::expandToMatchSize<DIM>(p_1.m_tensor, desired_size);
-    Eigen::Tensor<BRY::bry_float_t, DIM> p_2_tensor_rszd = _BRY::expandToMatchSize<DIM>(p_2.m_tensor, desired_size);
+    Eigen::Tensor<BRY::bry_float_t, DIM> p_1_tensor_rszd = _BRY::expandToMatchSize<DIM>(p_1.tensor(), desired_size);
+    Eigen::Tensor<BRY::bry_float_t, DIM> p_2_tensor_rszd = _BRY::expandToMatchSize<DIM>(p_2.tensor(), desired_size);
 
-    std::array<BRY::bry_idx_t, DIM> dimensions;
+    std::array<BRY::bry_int_t, DIM> dimensions;
     for (std::size_t i = 0; i < DIM; ++i)
         dimensions[i] = i;
 
@@ -184,23 +258,45 @@ BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p_1, const BRY::Polyn
     Eigen::Tensor<BRY::bry_complex_t, DIM> product_fft = tensor_1_fft * tensor_2_fft;
 
     Eigen::Tensor<BRY::bry_float_t, DIM> result = product_fft.template fft<Eigen::RealPart, Eigen::FFT_REVERSE>(dimensions);
-    return BRY::Polynomial<DIM>(std::move(result));
+    return BRY::Polynomial<DIM, BRY::Basis::Power>(std::move(result));
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator^(const BRY::Polynomial<DIM>& p, BRY::bry_deg_t deg) {
+BRY::Polynomial<DIM, BRY::Basis::Power> operator^(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, BRY::bry_int_t exp) {
 
-    BRY::bry_deg_t desired_size = deg * (p.degree() + 1);
+    BRY::bry_int_t desired_size = exp * p.degree() + 1;
 
-    Eigen::Tensor<BRY::bry_float_t, DIM> p_tensor_rszd = _BRY::expandToMatchSize<DIM>(p.m_tensor, desired_size);
+    Eigen::Tensor<BRY::bry_float_t, DIM> p_tensor_rszd = _BRY::expandToMatchSize<DIM>(p.tensor(), desired_size);
 
-    std::array<BRY::bry_idx_t, DIM> dimensions;
+    std::array<BRY::bry_int_t, DIM> dimensions;
     for (std::size_t i = 0; i < DIM; ++i)
         dimensions[i] = i;
 
     Eigen::Tensor<BRY::bry_complex_t, DIM> tensor_fft = p_tensor_rszd.template fft<Eigen::BothParts, Eigen::FFT_FORWARD>(dimensions);
-    Eigen::Tensor<BRY::bry_complex_t, DIM> exp_fft = tensor_fft.pow(static_cast<BRY::bry_float_t>(deg));
+    Eigen::Tensor<BRY::bry_complex_t, DIM> exp_fft = tensor_fft.pow(static_cast<BRY::bry_float_t>(exp));
 
     Eigen::Tensor<BRY::bry_float_t, DIM> result = exp_fft .template fft<Eigen::RealPart, Eigen::FFT_REVERSE>(dimensions);
-    return BRY::Polynomial<DIM>(std::move(result));
+    return BRY::Polynomial<DIM, BRY::Basis::Power>(std::move(result));
+}
+
+template <std::size_t DIM, BRY::Basis BASIS>
+BRY::Polynomial<DIM, BRY::Basis::Power> BRY::transform(const Polynomial<DIM, BASIS>& p, const Matrix& transform_matrix) {
+    bry_int_t new_size = static_cast<bry_int_t>(std::pow(transform_matrix.rows(), 1.0 / static_cast<bry_float_t>(DIM)));
+    if (pow(new_size, DIM) < transform_matrix.rows())
+        new_size += 1;
+
+    Eigen::Tensor<bry_float_t, DIM> tensor(makeUniformArray<bry_int_t, DIM>(new_size));
+    tensor.setZero();
+    //DEBUG("input p tensor: \n" << p.tensor());
+    //DEBUG("tensor size: " << p.tensor().size());
+    //DEBUG("n_monoms: " << p.nMonomials());
+
+    Eigen::Map<const Vector> p_vec(p.tensor().data(), p.nMonomials());
+    Eigen::Map<Vector> p_vec_tf(tensor.data(), transform_matrix.rows());
+
+    //DEBUG("p_vec: \n" << p_vec);
+    //DEBUG("tfmat: \n" << transform_matrix);
+    p_vec_tf = transform_matrix * p_vec;
+
+    return BRY::Polynomial<DIM, BRY::Basis::Power>(std::move(tensor));
 }

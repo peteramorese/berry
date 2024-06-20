@@ -16,62 +16,87 @@
 */
 #define BRY_OUTPUT_FMT_ZERO_THRESH 0.00000001
 
-/// Forward declarations
 namespace BRY {
 
-template <std::size_t DIM>
+/// @brief Different supported polynomial bases
+enum class Basis {
+    Power,
+    Bernstein
+};
+
+}
+
+/* Forward Declarations */
+namespace BRY {
+
+template <std::size_t DIM, BRY::Basis BASIS>
 class Polynomial;
 
 }
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator+(BRY::bry_float_t scalar, const BRY::Polynomial<DIM>& p);
+BRY::Polynomial<DIM, BRY::Basis::Power> operator+(BRY::bry_float_t scalar, const BRY::Polynomial<DIM, BRY::Basis::Power>& p);
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator+(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2);
+BRY::Polynomial<DIM, BRY::Basis::Power> operator+(const BRY::Polynomial<DIM, BRY::Basis::Power>& p_1, const BRY::Polynomial<DIM, BRY::Basis::Power>& p_2);
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator-(const BRY::Polynomial<DIM>& p);
+BRY::Polynomial<DIM, BRY::Basis::Power> operator-(const BRY::Polynomial<DIM, BRY::Basis::Power>& p);
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator-(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2);
+BRY::Polynomial<DIM, BRY::Basis::Power> operator-(const BRY::Polynomial<DIM, BRY::Basis::Power>& p_1, const BRY::Polynomial<DIM, BRY::Basis::Power>& p_2);
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator*(BRY::bry_float_t scalar, const BRY::Polynomial<DIM>& p);
+BRY::Polynomial<DIM, BRY::Basis::Power> operator*(BRY::bry_float_t scalar, const BRY::Polynomial<DIM, BRY::Basis::Power>& p);
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p, BRY::bry_float_t scalar);
+BRY::Polynomial<DIM, BRY::Basis::Power> operator*(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, BRY::bry_float_t scalar);
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator*(const BRY::Polynomial<DIM>& p_1, const BRY::Polynomial<DIM>& p_2);
+BRY::Polynomial<DIM, BRY::Basis::Power> operator*(const BRY::Polynomial<DIM, BRY::Basis::Power>& p_1, const BRY::Polynomial<DIM, BRY::Basis::Power>& p_2);
 
 template <std::size_t DIM>
-BRY::Polynomial<DIM> operator^(const BRY::Polynomial<DIM>& p, BRY::bry_deg_t deg);
+BRY::Polynomial<DIM, BRY::Basis::Power> operator^(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, BRY::bry_int_t exp);
 
 template <std::size_t DIM>
-std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM>& p);
+std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis::Power>& p);
+
+template <std::size_t DIM>
+std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis::Bernstein>& p);
 
 namespace BRY {
 
-template <std::size_t DIM>
+template <std::size_t DIM, Basis BASIS = Basis::Power>
 class Polynomial {
     public:
         /// @brief Construct polynomial of known (max) degree
         /// @param degree Maximum exponent of a given variable
-        Polynomial(bry_deg_t degree);
+        Polynomial(bry_int_t degree);
+
+        /// @brief Construct polynomial given a tensor
+        /// @param tensor Tensor of coefficients 
+        Polynomial(const Eigen::Tensor<bry_float_t, DIM>& tensor);
+
+        /// @brief Construct polynomial moving a tensor
+        /// @param tensor Tensor of coefficients
+        Polynomial(Eigen::Tensor<bry_float_t, DIM>&& tensor);
+
+        /// @brief Construct polynomial given a multiindex-organized vector of coefficients
+        /// @param tensor Tensor of coefficients 
+        Polynomial(const Vector& vector);
 
         /// @brief Get the degree
         /// @return Degree
-        BRY_INL bry_deg_t degree() const;
+        BRY_INL bry_int_t degree() const;
 
-        /// @brief Access a specific coefficient of a term. Usage: coeff(1, 0, 3) returns the coefficient of the term (x0)(x2^3)
+        /// @brief Access a specific coefficient of a term. Usage (power basis): coeff(1, 0, 3) returns the coefficient of the term (x0)(x2^3)
         /// @tparam ...DEGS 
         /// @param ...exponents Exponents in order of variables
         /// @return Reference to mutable value
         template <typename ... DEGS>
         BRY_INL bry_float_t& coeff(DEGS ... exponents);
 
-        /// @brief Access a specific coefficient of a term. Usage: coeff(1, 0, 3) returns the coefficient of the term (x0)(x2^3)
+        /// @brief Access a specific coefficient of a term. Usage (power basis): coeff(1, 0, 3) returns the coefficient of the term (x0)(x2^3)
         /// @tparam ...DEGS 
         /// @param ...exponents Exponents in order of variables
         /// @return Reference to imutable value
@@ -81,27 +106,27 @@ class Polynomial {
         // Operators
 
         /* TODO */
+        /// @brief Evaluation
+        /// @tparam ...FLTS 
+        /// @param ...x 
+        /// @return 
         template <typename ... FLTS>
         bry_float_t operator()(FLTS ... x) const;
+
+        /// @brief Get the Number of monomials
+        bry_int_t nMonomials() const;
+
+        BRY_INL const Eigen::Tensor<bry_float_t, DIM>& tensor() const;
 
         friend std::ostream& operator<<<DIM>(std::ostream& os, const Polynomial& p);
 
     private:
-        Polynomial(const Eigen::Tensor<bry_float_t, DIM>& tensor);
-        Polynomial(Eigen::Tensor<bry_float_t, DIM>&& tensor);
-
-    private:
         Eigen::Tensor<bry_float_t, DIM> m_tensor;
 
-    private:
-        friend Polynomial operator+<DIM>(bry_float_t scalar, const Polynomial& p);
-        friend Polynomial operator+<DIM>(const Polynomial& p_1, const Polynomial& p_2);
-        friend Polynomial operator-<DIM>(const Polynomial& p);
-        friend Polynomial operator-<DIM>(const Polynomial& p_1, const Polynomial& p_2);
-        friend Polynomial operator*<DIM>(bry_float_t scalar, const BRY::Polynomial<DIM>& p);
-        friend Polynomial operator*<DIM>(const Polynomial& p_1, const Polynomial& p_2);
-        friend Polynomial operator^<DIM>(const Polynomial& p, bry_deg_t deg);
 };
+
+template <std::size_t DIM, Basis BASIS>
+BRY::Polynomial<DIM, Basis::Power> transform(const BRY::Polynomial<DIM, BASIS>& p, const Matrix& transform_matrix);
 
 }
 

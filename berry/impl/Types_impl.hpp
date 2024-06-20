@@ -88,3 +88,21 @@ BRY::ExponentVec<sizeof...(ARGS_T)> BRY::makeExponentVec(ARGS_T&&... args) {
 
     return exp;
 }
+
+template <std::size_t DIM>
+Eigen::Tensor<BRY::bry_float_t, DIM> BRY::makeIncrementTensor(const std::array<bry_int_t, DIM>& dimensions, bry_int_t increment_idx, bry_int_t offset) {
+    std::array<bry_int_t, DIM> before_broadcast_dims = makeUniformArray<bry_int_t, DIM>(1);
+    before_broadcast_dims[increment_idx] = dimensions[increment_idx];
+    Eigen::Tensor<bry_float_t, DIM> increment_vector(before_broadcast_dims);
+
+    std::array<bry_int_t, DIM> midx = makeUniformArray<bry_int_t, DIM>(0);
+    for (bry_int_t i = 0; i < dimensions[increment_idx]; ++i) {
+        ++midx[increment_idx] = i;
+        increment_vector(midx) = static_cast<bry_float_t>(i + offset);
+    }
+
+    std::array<bry_int_t, DIM> bcast = dimensions;
+    bcast[increment_idx] = 1;
+
+    return increment_vector.broadcast(bcast);
+}

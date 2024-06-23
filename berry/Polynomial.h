@@ -105,9 +105,6 @@ class Polynomial {
         BRY_INL const bry_float_t& coeff(DEGS ... exponents) const;
         BRY_INL const bry_float_t& coeff(const std::array<bry_int_t, DIM>& exponents) const;
 
-        // Operators
-
-        /* TODO */
         /// @brief Evaluate the polynomial for given x vector
         /// @tparam ...FLTS 
         /// @param ...x `x` values
@@ -116,9 +113,16 @@ class Polynomial {
         bry_float_t operator()(FLTS ... x) const;
         bry_float_t operator()(const std::array<bry_float_t, DIM>& x) const;
 
+        /// @brief Compute the (partial) derivative of the polynomial with respect to a given dimension
+        /// @param dx_idx Dimension to take the partial derivative with respect to
+        /// @return Derivative polynomial (with the same degree)
+        Polynomial<DIM, BASIS> derivative(bry_int_t dx_idx) const;
+
         /// @brief Get the Number of monomials
         bry_int_t nMonomials() const;
 
+        /// @brief Access the underlying tensor
+        /// @return Read-only tensor access
         BRY_INL const Eigen::Tensor<bry_float_t, DIM>& tensor() const;
 
         friend std::ostream& operator<<<DIM>(std::ostream& os, const Polynomial& p);

@@ -23,6 +23,7 @@ int main() {
     BRY::Polynomial<3> p(2);
     p.coeff(0, 0, 0) = 100;
     p.coeff(1, 0, 0) = 1;
+    p.coeff(0, 1, 0) = 55;
     p.coeff(1, 1, 0) = 2;
     p.coeff(1, 2, 0) = 3;
     p.coeff(0, 2, 1) = 4;
@@ -35,4 +36,8 @@ int main() {
     INFO(p(.3, .4, .5));
     INFO(p(0, 0, 0));
     //std::cout << std::fixed << std::setprecision(10) << result << std::endl;
+
+    INFO("p: " << p);
+    Polynomial<3> p_prime = p.derivative(2);
+    INFO("p derivative: " << p_prime);
 }

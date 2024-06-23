@@ -142,6 +142,50 @@ BRY::bry_float_t BRY::Polynomial<DIM, BASIS>::operator()(const std::array<bry_fl
     }
 }
 
+template <std::size_t DIM, BRY::Basis BASIS>
+BRY::Polynomial<DIM, BASIS> BRY::Polynomial<DIM, BASIS>::derivative(bry_int_t dx_idx) const {
+    #ifdef BRY_ENABLE_BOUNDS_CHECK
+        ASSERT(dx_idx < DIM && dx_idx >= 0, "Derivative idx out of bounds");
+    #endif
+
+    if (degree() == 1) {
+        Eigen::Tensor<bry_float_t, DIM> t(m_tensor.dimensions());
+        t.setZero();
+        return Polynomial<DIM, BASIS>(std::move(t));
+    }
+
+    Eigen::Tensor<bry_float_t, DIM> increment_tensor = makeIncrementTensor(m_tensor.dimensions(), dx_idx, 0);
+
+    // Multiply each coefficient in the tensor by the previous exponent (power rule)
+    Eigen::Tensor<bry_float_t, DIM> power_coefficient_tensor = m_tensor * increment_tensor;
+
+    std::array<bry_int_t, DIM> offsets = makeUniformArray<bry_int_t, DIM>(0);
+    // Offset the tensor along the differential index to remove all of the 'constant' terms
+    offsets[dx_idx] = 1;
+
+    std::array<bry_int_t, DIM> extents = makeUniformArray<bry_int_t, DIM>(degree() + 1);
+    // Along the differential dimension, only keep the remaining rows after deleting the first
+    extents[dx_idx] -= 1;
+
+    // Erase all the constant terms and make a tensor of dim-1 along dx_idx
+    Eigen::Tensor<bry_float_t, DIM> derivative_tensor = power_coefficient_tensor.slice(offsets, extents);
+
+    std::array<std::pair<bry_int_t, bry_int_t>, DIM> paddings;
+    for (std::size_t d = 0; d < DIM; ++d) {
+        if (d == dx_idx) {
+            paddings[d] = std::make_pair(0, 1);
+        } else {
+            paddings[d] = std::make_pair(0, 0);
+        }
+    }
+
+    // Add zeros on the end the tensor so that it returns to original degree (effectively)
+    // shifting the coefficients over (reducing the exponent by 1)
+    Eigen::Tensor<bry_float_t, DIM> derivative_tensor_orig_deg = derivative_tensor.pad(paddings);
+
+    return Polynomial<DIM, BASIS>(std::move(derivative_tensor_orig_deg));
+}
+
 template <std::size_t DIM>
 std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis::Power>& p) {
     std::array<BRY::bry_int_t, DIM> idx_arr = BRY::makeUniformArray<BRY::bry_int_t, DIM>(BRY::bry_int_t{});

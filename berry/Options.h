@@ -15,9 +15,10 @@
 /* Enable logging in color */
 #define BRY_LOG_COLOR
 
-
 #define EIGEN_FFTW_DEFAULT
 
+/* Floating point difference tolerance */
+#define BRY_FLOAT_DIFF_TOL 1.0e-12
 
 
 #ifdef BRY_ENABLE_INL

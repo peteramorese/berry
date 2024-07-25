@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Logging.h"
 #include "Options.h"
 #include "Types.h"
 #include "MultiIndex.h"
@@ -29,6 +28,29 @@ static BRY_INL std::size_t multinom(const MultiIndex<>& idx);
 /// @param n Exponent (positive)
 /// @return Integer x^n
 static BRY_INL bry_int_t pow(bry_int_t x, std::size_t n);
+
+/* Helpful functions*/
+
+template <typename T, typename... ARGS_T>
+constexpr bool is_uniform_type();
+
+template <typename T, typename... ARGS_T>
+constexpr bool is_uniform_convertible_type();
+
+template <typename T, typename... ARGS_T>
+static std::array<T, sizeof...(ARGS_T)> makeArray(ARGS_T&&... args);
+
+template <typename T, std::size_t SZ>
+static std::array<T, SZ> makeUniformArray(const T& fill_val);
+
+template <typename... ARGS_T>
+static ExponentVec<sizeof...(ARGS_T)> makeExponentVec(ARGS_T&&... args);
+
+template <std::size_t DIM>
+static BRY_INL Eigen::Tensor<bry_float_t, DIM> makeIncrementTensor(const std::array<bry_int_t, DIM>& dimensions, bry_int_t increment_idx, bry_int_t offset = 0);
+
+template <std::size_t DIM>
+static Matrix makeDegreeChangeTransform(bry_int_t from_deg, bry_int_t to_deg);
 
 }
 

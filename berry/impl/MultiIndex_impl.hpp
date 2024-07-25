@@ -2,6 +2,8 @@
 
 #include "MultiIndex.h"
 
+#include "lemon/Logging.h"
+
 #include <cmath>
 #include <algorithm>
 
@@ -330,13 +332,13 @@ const BRY::bry_int_t* BRY::MultiIndex<INCREMENTER>::end() const {
 
 template <class INCREMENTER>
 std::ostream& operator<<(std::ostream& os, const BRY::MultiIndex<INCREMENTER>& idx) {
-    os << BRY_LOG_BWHITE("[");
+    os << LMN_LOG_BWHITE("[");
     for (std::size_t i = 0; i < idx.size(); ++i) {
-        os << BRY_LOG_GREEN(idx[i]);
+        os << LMN_LOG_GREEN(idx[i]);
         if (i < idx.size() - 1)
-            os << BRY_LOG_WHITE(", ");
+            os << LMN_LOG_WHITE(", ");
     }
-    os << BRY_LOG_BWHITE("]");
+    os << LMN_LOG_BWHITE("]");
     return os;
 }
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Logging.h"
 #include "Options.h"
 #include "Types.h"
 #include "Polynomial.h"

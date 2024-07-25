@@ -4,6 +4,8 @@
 #include "MultiIndex.h"
 #include "Operations.h"
 
+#include "lemon/Logging.h"
+
 #include <cmath>
 #include <math.h>
 #include <stdexcept>
@@ -11,10 +13,12 @@
 namespace _BRY {
     template <std::size_t DIM>
     Eigen::Tensor<BRY::bry_float_t, DIM> expandToMatchSize(const Eigen::Tensor<BRY::bry_float_t, DIM>& tensor, BRY::bry_int_t sz) {
-
         #ifdef BRY_ENABLE_BOUNDS_CHECK
-            ASSERT(tensor.dimension(0) < sz, "Input tensor is not smaller than desired size");
+            ASSERT(tensor.dimension(0) <= sz, "Input tensor is not smaller than desired size");
         #endif
+
+        if (tensor.dimension(0) == sz)
+            return tensor;
 
         std::array<std::pair<BRY::bry_int_t, BRY::bry_int_t>, DIM> paddings;
         for (std::pair<BRY::bry_int_t, BRY::bry_int_t>& pads : paddings) {
@@ -80,14 +84,14 @@ BRY::bry_float_t& BRY::Polynomial<DIM, BASIS>::coeff(const std::array<bry_int_t,
 
 template <std::size_t DIM, BRY::Basis BASIS>
 template <typename ... DEGS>
-const BRY::bry_float_t& BRY::Polynomial<DIM, BASIS>::coeff(DEGS ... exponents) const {
+BRY::bry_float_t BRY::Polynomial<DIM, BASIS>::coeff(DEGS ... exponents) const {
     static_assert(is_uniform_convertible_type<bry_int_t, DEGS ...>(), "All parameters passed to `coeff` must be degree type (`bry_int_t`)");
     static_assert(sizeof...(DEGS) == DIM, "Number of exponents must match the dimension of the polynomial");
     return m_tensor(exponents...);
 }
 
 template <std::size_t DIM, BRY::Basis BASIS>
-const BRY::bry_float_t& BRY::Polynomial<DIM, BASIS>::coeff(const std::array<bry_int_t, DIM>& exponents) const {
+BRY::bry_float_t BRY::Polynomial<DIM, BASIS>::coeff(const std::array<bry_int_t, DIM>& exponents) const {
     return m_tensor(exponents);
 }
 
@@ -148,7 +152,7 @@ BRY::Polynomial<DIM, BASIS> BRY::Polynomial<DIM, BASIS>::derivative(bry_int_t dx
         ASSERT(dx_idx < DIM && dx_idx >= 0, "Derivative idx out of bounds");
     #endif
 
-    if (degree() == 1) {
+    if (degree() == 0) {
         Eigen::Tensor<bry_float_t, DIM> t(m_tensor.dimensions());
         t.setZero();
         return Polynomial<DIM, BASIS>(std::move(t));
@@ -186,11 +190,20 @@ BRY::Polynomial<DIM, BASIS> BRY::Polynomial<DIM, BASIS>::derivative(bry_int_t dx
     return Polynomial<DIM, BASIS>(std::move(derivative_tensor_orig_deg));
 }
 
+template <std::size_t DIM, BRY::Basis BASIS>
+BRY::Polynomial<DIM, BASIS> BRY::Polynomial<DIM, BASIS>::liftDegree(bry_int_t raised_deg) const {
+    #ifdef BRY_ENABLE_BOUNDS_CHECK
+        ASSERT(raised_deg >= degree(), "Raised degree is smaller than current degree");
+    #endif
+    return Polynomial<DIM, BASIS>(_BRY::expandToMatchSize<DIM>(m_tensor, raised_deg + 1));
+}
+
 template <std::size_t DIM>
 std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis::Power>& p) {
     std::array<BRY::bry_int_t, DIM> idx_arr = BRY::makeUniformArray<BRY::bry_int_t, DIM>(BRY::bry_int_t{});
     std::size_t d = 0;
     bool first = true;
+    bool zero = true;
 
     auto iterate = [&] () {
         ++idx_arr[0];
@@ -210,22 +223,27 @@ std::ostream& operator<<(std::ostream& os, const BRY::Polynomial<DIM, BRY::Basis
             continue;
         }
 
+        zero = false;
+
         if (!first)
-            os << BRY_LOG_WHITE(" + ");
+            os << LMN_LOG_WHITE(" + ");
         first = false;
 
-        os << BRY_LOG_BYELLOW(coeff);
+        os << LMN_LOG_BYELLOW(coeff);
         if constexpr (DIM != 1) {
             for (std::size_t dim = 0; dim < DIM; ++dim) {
                 if (idx_arr[dim] > 0)
-                    os << BRY_LOG_WHITE("(x" << dim << "^") << BRY_LOG_BGREEN(idx_arr[dim]) << BRY_LOG_WHITE(")");
+                    os << LMN_LOG_WHITE("(x" << dim << "^") << LMN_LOG_BGREEN(idx_arr[dim]) << LMN_LOG_WHITE(")");
             }
         } else {
             if (idx_arr[0] > 0)
-                os << BRY_LOG_WHITE("x^") << BRY_LOG_BGREEN(idx_arr[0]);
+                os << LMN_LOG_WHITE("x^") << LMN_LOG_BGREEN(idx_arr[0]);
         }
         iterate();
     }
+
+    if (zero)
+        os << LMN_LOG_BYELLOW('0');
     return os;
 }
 
@@ -321,6 +339,12 @@ BRY::Polynomial<DIM, BRY::Basis::Power> operator*(const BRY::Polynomial<DIM, BRY
 template <std::size_t DIM>
 BRY::Polynomial<DIM, BRY::Basis::Power> operator^(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, BRY::bry_int_t exp) {
 
+    if (exp == 0) {
+        Eigen::Tensor<BRY::bry_float_t, DIM> scalar_t(makeUniformArray<BRY::bry_int_t, DIM>(1));
+        *scalar_t.data() = 1;
+        return BRY::Polynomial<DIM, BRY::Basis::Power>(scalar_t);
+    }
+
     BRY::bry_int_t desired_size = exp * p.degree() + 1;
 
     Eigen::Tensor<BRY::bry_float_t, DIM> p_tensor_rszd = _BRY::expandToMatchSize<DIM>(p.tensor(), desired_size);
@@ -336,24 +360,19 @@ BRY::Polynomial<DIM, BRY::Basis::Power> operator^(const BRY::Polynomial<DIM, BRY
     return BRY::Polynomial<DIM, BRY::Basis::Power>(std::move(result));
 }
 
-template <std::size_t DIM, BRY::Basis BASIS>
-BRY::Polynomial<DIM, BRY::Basis::Power> BRY::transform(const Polynomial<DIM, BASIS>& p, const Matrix& transform_matrix) {
+template <std::size_t DIM, BRY::Basis FROM_BASIS, BRY::Basis TO_BASIS>
+BRY::Polynomial<DIM, TO_BASIS> BRY::transform(const Polynomial<DIM, FROM_BASIS>& p, const Matrix& transform_matrix) {
     bry_int_t new_size = static_cast<bry_int_t>(std::pow(transform_matrix.rows(), 1.0 / static_cast<bry_float_t>(DIM)));
     if (pow(new_size, DIM) < transform_matrix.rows())
         new_size += 1;
 
     Eigen::Tensor<bry_float_t, DIM> tensor(makeUniformArray<bry_int_t, DIM>(new_size));
     tensor.setZero();
-    //DEBUG("input p tensor: \n" << p.tensor());
-    //DEBUG("tensor size: " << p.tensor().size());
-    //DEBUG("n_monoms: " << p.nMonomials());
 
     Eigen::Map<const Vector> p_vec(p.tensor().data(), p.nMonomials());
     Eigen::Map<Vector> p_vec_tf(tensor.data(), transform_matrix.rows());
 
-    //DEBUG("p_vec: \n" << p_vec);
-    //DEBUG("tfmat: \n" << transform_matrix);
     p_vec_tf = transform_matrix * p_vec;
 
-    return BRY::Polynomial<DIM, BRY::Basis::Power>(std::move(tensor));
+    return BRY::Polynomial<DIM, TO_BASIS>(std::move(tensor));
 }

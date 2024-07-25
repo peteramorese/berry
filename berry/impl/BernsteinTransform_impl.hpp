@@ -5,6 +5,8 @@
 #include "Operations.h"
 #include "Types.h"
 
+#include "lemon/Logging.h"
+
 //template <std::size_t DIM>
 //Polynomial<DIM, BRY::Basis::Bernstein> BRY::BernsteinBasisTransform<DIM>::to(const Polynomial<DIM, BRY::Basis::Power>& p, BRY::bry_int_t degree_increase = 0) {
 //    
@@ -67,4 +69,46 @@ BRY::Matrix BRY::BernsteinBasisTransform<DIM>::makeBigMatrix(bry_int_t to_degree
         }
     }
     return matrix;
+}
+
+template <std::size_t DIM>
+std::pair<BRY::bry_float_t, bool> BRY::BernsteinBasisTransform<DIM>::infBound(const BRY::Polynomial<DIM, BRY::Basis::Bernstein>& p) {
+    Eigen::Tensor<bry_float_t, 0> min = p.tensor().minimum();
+
+    bry_float_t min_coeff = min();
+    Eigen::Vector<bry_int_t, DIM> vertex_idx = Eigen::Vector<bry_int_t, DIM>::Zero();
+    MultiIndex<ExhaustiveIncrementer> midx(vertex_idx.data(), DIM, true, 2);
+    for (; !midx.last(); ++midx) {
+        bry_float_t vertex_val = p.tensor()(p.degree() * vertex_idx);
+        if (vertex_val == min_coeff) {
+            return std::make_pair(min_coeff, true);
+        }
+    }
+
+    return std::make_pair(min_coeff, false);
+}
+
+template <std::size_t DIM>
+BRY::bry_float_t BRY::BernsteinBasisTransform<DIM>::infBoundGap(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, bool vertex_condition, bry_int_t degree_increase) {
+    if (vertex_condition)
+        return 0.0;
+
+    bry_float_t epsilon = 0.0;
+    std::array<bry_int_t, DIM> idx;
+    MultiIndex<ExhaustiveIncrementer> midx(idx.data(), DIM, true, p.degree() + 1);
+    for (; !midx.last(); ++midx) {
+        bry_int_t multiplier = 0;
+        for (bry_int_t d = 0; d < DIM; ++d) {
+            if (midx[d] != 0) {
+                multiplier += (midx[d] - 1) * (midx[d] - 1);
+            }
+        }
+        //DEBUG("midx: " << midx << " adding " << static_cast<bry_float_t>(multiplier) * std::abs(p.coeff(idx)) << " from coeff: " << (p.coeff(idx)));
+        epsilon += static_cast<bry_float_t>(multiplier) * std::abs(p.coeff(idx));
+    }
+    //DEBUG("epsilon: " << epsilon << " degree: " << p.degree());
+    //PAUSE;
+
+    bry_float_t raised_deg_f = static_cast<bry_float_t>(p.degree() + degree_increase);
+    return epsilon * (raised_deg_f - 1.0) / (raised_deg_f * raised_deg_f);
 }

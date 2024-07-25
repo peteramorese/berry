@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Logging.h"
 #include "Options.h"
 #include "Types.h"
 #include "Polynomial.h"
@@ -12,20 +11,6 @@ namespace BRY {
 template <std::size_t DIM>
 class BernsteinBasisTransform {
     public:
-        /// @brief Convert a polynomial of the power basis to the Bernstein basis
-        /// @param p Polynomial (power basis)
-        /// @param degree_increase Elevate the degree of the Bernstein basis. 
-        /// If this is 0, the degree of the Bernstein polynomial is the same as the power polynomial
-        /// @return Polynomial in the Bernstein basis
-        Polynomial<DIM, Basis::Bernstein> to(const Polynomial<DIM, Basis::Power>& p, bry_int_t degree_increase = 0);
-
-        /* TODO */
-        //Polynomial<DIM, Basis::Power> from(const Polynomial<DIM, Basis::Bernstein>& p);
-
-        
-
-        BRY_INL bry_float_t minCoeff() const;
-
         /// @brief Compute the transformation matrix for power basis to Bernstein basis
         /// @param degree Degree of the power basis polynomial
         /// @param degree_increase Elevate the degree of the transformation
@@ -36,6 +21,19 @@ class BernsteinBasisTransform {
         /// @param degree Degree of the Bernstein basis polynomial
         /// @return Transformation matrix
         static Matrix bernToPwrMatrix(bry_int_t degree);
+
+        /// @brief Compute the lower bound of a polynomial on the unit interval in the Bernstein basis
+        /// @param p Polynomial in the Bernstein basis
+        /// @return Lower bound (smallest coefficient), flag if the vertex condition is met (true lower bound achieved)
+        static std::pair<bry_float_t, bool> infBound(const BRY::Polynomial<DIM, BRY::Basis::Bernstein>& p);
+
+        /// @brief Compute the difference between an upper and lower bound on the infemum of a polynomial
+        /// @param p Polynomial in the power basis
+        /// @param degree_increase Elevated degree of Bernstein transformation
+        /// @return Gap between inf lower and upper bound
+        static bry_float_t infBoundGap(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, bool vertex_condition = false, bry_int_t degree_increase = 0);
+
+
     private:
         template <typename COEFF_LAM>
         static Matrix makeBigMatrix(bry_int_t to_degree, bry_int_t from_degree, COEFF_LAM makeCoeff);

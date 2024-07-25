@@ -2,6 +2,8 @@
 
 #include "Shrink.h"
 
+#include "lemon/Logging.h"
+
 #include <Eigen/Core>
 #include <unsupported/Eigen/CXX11/Tensor>
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Logging.h"
 #include "Options.h"
 #include "Types.h"
 
@@ -102,8 +101,8 @@ class Polynomial {
         /// @param ...exponents Exponents in order of variables
         /// @return Reference to imutable value
         template <typename ... DEGS>
-        BRY_INL const bry_float_t& coeff(DEGS ... exponents) const;
-        BRY_INL const bry_float_t& coeff(const std::array<bry_int_t, DIM>& exponents) const;
+        BRY_INL bry_float_t coeff(DEGS ... exponents) const;
+        BRY_INL bry_float_t coeff(const std::array<bry_int_t, DIM>& exponents) const;
 
         /// @brief Evaluate the polynomial for given x vector
         /// @tparam ...FLTS 
@@ -117,6 +116,11 @@ class Polynomial {
         /// @param dx_idx Dimension to take the partial derivative with respect to
         /// @return Derivative polynomial (with the same degree)
         Polynomial<DIM, BASIS> derivative(bry_int_t dx_idx) const;
+
+        /// @brief Create a copy with a raised degree by padding the higher order terms as zero-coefficients
+        /// @param raised_deg New degree (must be larger than `degree()`)
+        /// @return Raised degree polynomial
+        Polynomial<DIM, BASIS> liftDegree(bry_int_t raised_deg) const;
 
         /// @brief Get the Number of monomials
         bry_int_t nMonomials() const;
@@ -132,8 +136,14 @@ class Polynomial {
 
 };
 
-template <std::size_t DIM, Basis BASIS>
-BRY::Polynomial<DIM, Basis::Power> transform(const BRY::Polynomial<DIM, BASIS>& p, const Matrix& transform_matrix);
+/// @brief Linearly transform the coefficients of a polynomial using a transformation matrix
+/// @tparam FROM_BASIS Basis of existing polynomial
+/// @tparam TO_BASIS Basis of returned polynomial
+/// @param p Polynomial
+/// @param transform_matrix Transformation in vectorized form
+/// @return Transformed polynomial
+template <std::size_t DIM, Basis FROM_BASIS, Basis TO_BASIS = Basis::Power>
+BRY::Polynomial<DIM, TO_BASIS> transform(const BRY::Polynomial<DIM, FROM_BASIS>& p, const Matrix& transform_matrix);
 
 }
 

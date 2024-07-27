@@ -27,7 +27,7 @@ static BRY_INL std::size_t multinom(const MultiIndex<>& idx);
 /// @param x Base
 /// @param n Exponent (positive)
 /// @return Integer x^n
-static BRY_INL bry_int_t pow(bry_int_t x, std::size_t n);
+static BRY_INL bry_int_t pow(bry_int_t x, bry_int_t n);
 
 /* Helpful functions*/
 

@@ -106,13 +106,14 @@ std::size_t BRY::multinom(const MultiIndex<>& idx) {
     return multinom(idx.inc().indexConstraint(), idx);
 }
 
-BRY::bry_int_t BRY::pow(bry_int_t x, std::size_t n) {
+BRY::bry_int_t BRY::pow(bry_int_t x, bry_int_t n) {
     if (n == 0)
         return 1;
 
-    for (std::size_t i = 1; i < n; ++i)
-        x *= x;
-    return x;
+    bry_int_t result = x;
+    for (bry_int_t i = 1; i < n; ++i)
+        result *= x;
+    return result;
 }
 
 template <typename T, typename... ARGS_T>

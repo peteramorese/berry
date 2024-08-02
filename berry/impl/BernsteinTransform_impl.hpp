@@ -89,6 +89,32 @@ std::pair<BRY::bry_float_t, bool> BRY::BernsteinBasisTransform<DIM>::infBound(co
 }
 
 template <std::size_t DIM>
+std::pair<BRY::bry_float_t, bool> BRY::BernsteinBasisTransform<DIM>::infBound(const BRY::Polynomial<DIM, BRY::Basis::Bernstein>& p, std::array<bry_int_t, DIM>& coefficient_idx) {
+    bry_float_t min_coeff = std::numeric_limits<bry_float_t>::max();
+
+    bool is_vertex = false;
+    std::array<bry_int_t, DIM> idx;
+    MultiIndex<ExhaustiveIncrementer> midx(idx.data(), DIM, true, p.degree() + 1);
+    for (; !midx.last(); ++midx) {
+        bry_float_t coeff = p.coeff(idx);
+        if (coeff < min_coeff) {
+            min_coeff = coeff;
+            coefficient_idx = idx;
+
+            is_vertex = true;
+            for (auto i : midx) {
+                if (i != 0 || i != p.degree()) {
+                    is_vertex = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    return std::make_pair(min_coeff, is_vertex);
+}
+
+template <std::size_t DIM>
 BRY::bry_float_t BRY::BernsteinBasisTransform<DIM>::infBoundGap(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, bool vertex_condition, bry_int_t degree_increase) {
     if (vertex_condition)
         return 0.0;
@@ -111,4 +137,13 @@ BRY::bry_float_t BRY::BernsteinBasisTransform<DIM>::infBoundGap(const BRY::Polyn
 
     bry_float_t raised_deg_f = static_cast<bry_float_t>(p.degree() + degree_increase);
     return epsilon * (raised_deg_f - 1.0) / (raised_deg_f * raised_deg_f);
+}
+
+template <std::size_t DIM>
+Eigen::Vector<BRY::bry_float_t, DIM> BRY::BernsteinBasisTransform<DIM>::ctrlPtOnUnitBox(const std::array<bry_int_t, DIM>& coefficient_idx, bry_int_t bernstein_p_deg) {
+    Eigen::Vector<bry_float_t, DIM> ctrl_point;
+    for (bry_int_t d = 0; d < DIM; ++d) {
+        ctrl_point[d] = static_cast<bry_float_t>(coefficient_idx[d]) / bernstein_p_deg;
+    }
+    return ctrl_point;
 }

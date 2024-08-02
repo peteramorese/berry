@@ -27,12 +27,19 @@ class BernsteinBasisTransform {
         /// @return Lower bound (smallest coefficient), flag if the vertex condition is met (true lower bound achieved)
         static std::pair<bry_float_t, bool> infBound(const BRY::Polynomial<DIM, BRY::Basis::Bernstein>& p);
 
+        /// @brief Compute the lower bound of a polynomial on the unit interval in the Bernstein basis, track the idx of the mim coeff
+        /// @param p Polynomial in the Bernstein basis
+        /// @param coefficient_idx Edit in place (return) the idx of the min coefficient
+        /// @return Lower bound (smallest coefficient), flag if the vertex condition is met (true lower bound achieved)
+        static std::pair<bry_float_t, bool> infBound(const BRY::Polynomial<DIM, BRY::Basis::Bernstein>& p, std::array<bry_int_t, DIM>& coefficient_idx);
+
         /// @brief Compute the difference between an upper and lower bound on the infemum of a polynomial
         /// @param p Polynomial in the power basis
         /// @param degree_increase Elevated degree of Bernstein transformation
         /// @return Gap between inf lower and upper bound
         static bry_float_t infBoundGap(const BRY::Polynomial<DIM, BRY::Basis::Power>& p, bool vertex_condition = false, bry_int_t degree_increase = 0);
 
+        static Eigen::Vector<bry_float_t, DIM> ctrlPtOnUnitBox(const std::array<bry_int_t, DIM>& coefficient_idx, bry_int_t bernstein_p_deg);
 
     private:
         template <typename COEFF_LAM>

@@ -109,8 +109,9 @@ class Polynomial {
         /// @param ...x `x` values
         /// @return Scalar 
         template <typename ... FLTS>
-        bry_float_t operator()(FLTS ... x) const;
+        BRY_INL bry_float_t operator()(FLTS ... x) const;
         bry_float_t operator()(const std::array<bry_float_t, DIM>& x) const;
+        BRY_INL bry_float_t operator()(const Eigen::Vector<bry_float_t, DIM>& x) const;
 
         /// @brief Compute the (partial) derivative of the polynomial with respect to a given dimension
         /// @param dx_idx Dimension to take the partial derivative with respect to

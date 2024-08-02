@@ -147,6 +147,13 @@ BRY::bry_float_t BRY::Polynomial<DIM, BASIS>::operator()(const std::array<bry_fl
 }
 
 template <std::size_t DIM, BRY::Basis BASIS>
+BRY::bry_float_t BRY::Polynomial<DIM, BASIS>::operator()(const Eigen::Vector<bry_float_t, DIM>& x) const {
+    std::array<bry_float_t, DIM> x_arr;
+    std::copy(x.begin(), x.end(), x_arr.begin());
+    return operator()(x_arr);
+}
+
+template <std::size_t DIM, BRY::Basis BASIS>
 BRY::Polynomial<DIM, BASIS> BRY::Polynomial<DIM, BASIS>::derivative(bry_int_t dx_idx) const {
     #ifdef BRY_ENABLE_BOUNDS_CHECK
         ASSERT(dx_idx < DIM && dx_idx >= 0, "Derivative idx out of bounds");

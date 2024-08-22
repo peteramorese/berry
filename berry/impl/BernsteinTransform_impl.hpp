@@ -103,7 +103,7 @@ std::pair<BRY::bry_float_t, bool> BRY::BernsteinBasisTransform<DIM>::infBound(co
 
             is_vertex = true;
             for (auto i : midx) {
-                if (i != 0 || i != p.degree()) {
+                if (i != 0 && i != p.degree()) {
                     is_vertex = false;
                     break;
                 }
